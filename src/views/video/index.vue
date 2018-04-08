@@ -97,13 +97,17 @@
       </el-table-column>
       <el-table-column label="发布状态" align="center">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status === '0'?'info':'success'">{{ scope.row.status === '0'?'未发布' : '已发布' }}</el-tag>
-          <span class="svg-container" @click="modifyStatus(scope)">
-            <svg-icon class="iconsize" icon-class="edit"></svg-icon>
-          </span>
+          <!-- <el-tag :type="scope.row.status === 0?'info':'success'">{{ scope.row.status === 0?'未启用' : '已启用' }}</el-tag> -->
+          <div @click="modifyStatus(scope)">
+            <el-switch v-model=" scope.row.status == '1' " active-color="#13ce66" >
+            </el-switch>
+          </div>
         </template>
       </el-table-column>
       <el-table-column prop="pubtime" label="发布时间" align="center">
+        <template slot-scope="scope">
+          {{tg(scope.row.pubtime)}}
+        </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作">
         <template slot-scope="scope">
@@ -147,8 +151,15 @@
     update,
     upload
   } from '@/api/video'
+  import timeago from 'timeago.js'
   export default {
     methods: {
+      tg(time) {
+        if (time !== null) {
+          return timeago(null, 'zh_CN').format(time)
+        }
+        return '未发布'
+      },
       modifyTitle(scope) {
         this.$prompt('修改标题', '提示', {
           confirmButtonText: '确定',

@@ -45,40 +45,64 @@ export const constantRouterMap = [
     hidden: true
   },
 
+  // {
+  //   path: '/content',
+  //   component: Layout,
+  //   redirect: '/content/site',
+  //   name: 'Example',
+  //   meta: { title: '资源管理', icon: 'example' },
+  //   children: [
+
+  //   ]
+  // },
   {
-    path: '/content',
+    path: '/site',
     component: Layout,
-    redirect: '/content/site',
-    name: 'Example',
-    meta: { title: '资源管理', icon: 'example' },
     children: [
       {
-        path: 'site',
+        path: 'index',
         name: 'Site',
         component: () => import('@/views/site/index'),
         meta: { title: 'B站管理', icon: 'site' }
-      },
+      }
+    ]
+  },
+  {
+    path: '/video',
+    component: Layout,
+    children: [
       {
-        path: 'video',
+        path: 'index',
         name: 'Video',
         component: () => import('@/views/video/index'),
         meta: { title: '视频管理', icon: 'video' }
-      },
+      }
+    ]
+  },
+  {
+    path: '/pic',
+    component: Layout,
+    children: [
       {
-        path: 'pic',
+        path: 'index',
         name: 'Pic',
         component: () => import('@/views/pic/index'),
         meta: { title: '图片管理', icon: 'pic' }
-      },
+      }
+    ]
+  },
+  {
+    path: '/book',
+    component: Layout,
+    children: [
       {
-        path: 'book',
+        path: 'index',
         name: 'Book',
         component: () => import('@/views/book/index'),
         meta: { title: '文学管理', icon: 'book' }
       }
     ]
   },
-
   { path: '*', redirect: '/404', hidden: true }
 ]
 
