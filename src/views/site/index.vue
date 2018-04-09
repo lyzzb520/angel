@@ -27,7 +27,7 @@
           <el-input size="mini" v-model="tQueryData.ip" placeholder="输入IP" clearable></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button size="mini" plain @click="initQueryData()" icon="el-icon-refresh">清空</el-button>
@@ -119,8 +119,17 @@ export default {
         inputValue: scope.row.name,
         lockScroll: false,
         inputPlaceholder: '请输入站名',
-        inputPattern: /^[\S]+$/,
-        inputErrorMessage: '站名不能为空'
+        inputType: 'text',
+        inputValidator: function(v) {
+          v = v || ''
+          if (v.trim() === '') {
+            return '站名不能为空！'
+          }
+          if (v.length > 32) {
+            return '站名长度不能查过32个字符'
+          }
+          return true
+        }
       }).then(({ value }) => {
         update({ id: scope.row.id, name: value }).then(response => {
           scope.row.name = value
@@ -143,8 +152,17 @@ export default {
         inputValue: scope.row.domain,
         lockScroll: false,
         inputPlaceholder: '请输入域名',
-        inputPattern: /^[\S]+$/,
-        inputErrorMessage: '域名不能为空'
+        inputType: 'text',
+        inputValidator: function(v) {
+          v = v || ''
+          if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(v)) {
+            return '必须是有效的域名'
+          }
+          if (v.length > 45) {
+            return '域名长度必须小于等于45'
+          }
+          return true
+        }
       }).then(({ value }) => {
         update({ id: scope.row.id, domain: value }).then(response => {
           scope.row.domain = value
@@ -191,8 +209,17 @@ export default {
         inputValue: scope.row.apikey,
         lockScroll: false,
         inputPlaceholder: '请输入apikey',
-        inputPattern: /^[\S]+$/,
-        inputErrorMessage: 'apikey不能为空'
+        inputType: 'text',
+        inputValidator: function(v) {
+          v = v || ''
+          if (!/^[a-zA-Z_0-9]+$/.test(v)) {
+            return 'apikey只能保护数字、大小写字母和下划线'
+          }
+          if (v.length > 32) {
+            return '域名长度必须小于等于32'
+          }
+          return true
+        }
       }).then(({ value }) => {
         update({ id: scope.row.id, apikey: value }).then(response => {
           scope.row.apikey = value
@@ -267,7 +294,7 @@ export default {
     },
     onDelete(scope) {
       // this.tableData.content.splice(scope.$index, 1)
-      this.$confirm('删除id为 ' + scope.row.id + ' 的记录？此操作将永久删除该记录, 是否继续?', '提示', {
+      this.$confirm('删除站名为【' + scope.row.name + '】的记录？此操作将永久删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning',
@@ -327,7 +354,25 @@ export default {
       }
       callback()
     }
+    const validateName = (rule, v, callback) => {
+      v = v || ''
+      if (v === '' || v.length > 16) {
+        callback(new Error('站名不能为空，且必须小于16位'))
+      }
+      callback()
+    }
+    const validateKey = (rule, v, callback) => {
+      v = v || ''
+      if (!/^[a-zA-Z_0-9]+$/.test(v)) {
+        callback(new Error('秘钥只能包含数字大小写字母和_'))
+      }
+      if (v.length > 32) {
+        callback(new Error('秘钥长度必须小于等于32位'))
+      }
+      callback()
+    }
     const validateDomain = (rule, value, callback) => {
+      value = value || ''
       if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(value)) {
         callback(new Error('域名格式错误！'))
       }
@@ -357,24 +402,19 @@ export default {
       tableData: [],
       rules: {
         id: [
-          { required: true, message: '站点ID不能为空', trigger: 'blur' },
           { validator: validateId, trigger: 'blur' }
         ],
         name: [
-          { required: true, message: '站名不能为空', trigger: 'blur' },
-          { min: 0, max: 32, message: '站名长度必须小于等于16', trigger: 'blur' }
+          { validator: validateName, trigger: 'blur' }
         ],
         domain: [
-          { required: true, message: '域名不能为空', trigger: 'blur' },
           { validator: validateDomain, trigger: 'blur' }
         ],
         ip: [
-          { required: true, message: 'IP不能为空', trigger: 'blur' },
           { validator: validateIp, trigger: 'blur' }
         ],
         apikey: [
-          { required: true, message: '密钥不能为空', trigger: 'blur' },
-          { min: 0, max: 32, message: '密钥长度必须小于等于32', trigger: 'blur' }
+          { validator: validateKey, trigger: 'blur' }
         ]
 
       }

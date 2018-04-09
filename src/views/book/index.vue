@@ -7,7 +7,7 @@
         <el-form-item>
           <el-button size="mini" type="primary" icon="el-icon-plus" @click="onSaveDialogShow()">新增</el-button>
         </el-form-item>
-        <el-form-item label="排序">
+        <!-- <el-form-item label="排序">
           <el-select class="query-sort" size="mini" v-model="tQueryData.sortfiled">
             <el-option label="uuid" value="uuid"></el-option>
             <el-option label="pt" value="pubtime"></el-option>
@@ -16,7 +16,7 @@
             <el-option label="升" value="0"></el-option>
             <el-option label="降" value="1"></el-option>
           </el-select>
-        </el-form-item>
+        </el-form-item> -->
         <el-form-item label="标题">
           <el-input class="query-input" size="mini" v-model="tQueryData.title" placeholder="输入标题" clearable></el-input>
         </el-form-item>
@@ -43,12 +43,16 @@
           </el-select>
         </el-form-item>
         <el-form-item label="发布时间">
-          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange" type="datetimerange" :picker-options="pickerOptions2" range-separator="至"
-            start-placeholder="开始日期" end-placeholder="结束日期" align="right">
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange[0]" type="datetime" placeholder="选择开始日期时间">
+          </el-date-picker> -
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange[1]" type="datetime" placeholder="选择结束日期时间">
           </el-date-picker>
+          <!-- <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange" type="datetimerange" :picker-options="pickerOptions2" range-separator="至"
+            start-placeholder="开始日期" end-placeholder="结束日期" align="right">
+          </el-date-picker> -->
         </el-form-item>
         <el-form-item>
-          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button size="mini" plain @click="initQueryData()" icon="el-icon-refresh">清空</el-button>
@@ -56,8 +60,8 @@
       </el-form>
     </fieldset>
     <el-table :data="tableData.content" v-loading="tableLoading" border style="width: 100%" size="mini">
-      <el-table-column fixed prop="uuid" label="ID" align="center">
-      </el-table-column>
+      <!-- <el-table-column fixed prop="uuid" label="ID" align="center">
+      </el-table-column> -->
       <el-table-column label="标题" align="center">
         <template slot-scope="scope">
           {{scope.row.title}}
@@ -88,7 +92,7 @@
         <template slot-scope="scope">
           <!-- <el-tag :type="scope.row.status === 0?'info':'success'">{{ scope.row.status === 0?'未启用' : '已启用' }}</el-tag> -->
           <div @click="modifyStatus(scope)">
-            <el-switch v-model=" scope.row.status == '1' " active-color="#13ce66" >
+            <el-switch v-model=" scope.row.status == '1' " active-color="#13ce66">
             </el-switch>
           </div>
         </template>
@@ -117,29 +121,33 @@
     <!-- 添加 -->
     <el-dialog title="新增" width="30%" :visible.sync="tDialogSaveVisible">
       <el-form :model="tUpdateData" size="small" :rules="rules" ref="ruleForm">
-        <el-form-item label="标题" :label-width="formLabelWidth" prop="title">
-          <el-input v-model="tUpdateData.title" auto-complete="off"></el-input>
+        <el-form-item label="标题" :label-width="formLabelWidth" prop="title" >
+          <el-input v-model="tUpdateData.title" auto-complete="off" clearable></el-input>
         </el-form-item>
-        <!-- <el-form-item label="前言" :label-width="formLabelWidth">
-          <el-input v-model="tUpdateData.preface" auto-complete="off"></el-input>
-        </el-form-item> -->
+
         <el-form-item label="标签" :label-width="formLabelWidth" prop="tags">
-          <el-input v-model="tUpdateData.tags" auto-complete="off"></el-input>
+          <el-input v-model="tUpdateData.tags" auto-complete="off" style="display:none"></el-input> 
+          <el-tag :key="tag" v-for="tag in dynamicTags1" closable :disable-transitions="false" @close="handleClose1(tag)">
+            {{tag}}
+          </el-tag>
+          <el-input class="input-new-tag" v-if="inputVisible1" v-model="inputValue1" ref="saveTagInput1" size="small" @keyup.enter.native="handleInputConfirm1"
+            @blur="handleInputConfirm1">
+          </el-input>
+          <el-button v-else class="button-new-tag" size="small" @click="showInput1">添加标签</el-button>
         </el-form-item>
-        <!-- <el-form-item label="发布来源" :label-width="formLabelWidth">
-          <el-input v-model="tUpdateData.siteid" auto-complete="off"></el-input>
-        </el-form-item> -->
+
+
         <el-form-item label="发布状态" :label-width="formLabelWidth">
           <el-select class="query-stauts" size="mini" v-model="tUpdateData.status">
             <el-option label="未发布" value="0"></el-option>
             <el-option label="已发布" value="1"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="添加文学" :label-width="formLabelWidth">
+        <el-form-item label="添加文学" :label-width="formLabelWidth" prop="filename">
+          <el-input v-model="tUpdateData.filename" auto-complete="off" style="display:none"></el-input>      
           <el-upload class="upload-demo" ref="upload" :auto-upload="false" action="" :http-request="startUpload" :before-upload="beforeUpload"
-            list-type="picture" :on-change="onUploadChange" :limit="1">
+            list-type="picture" :on-change="onUploadChange" :on-remove="onUploadRemove" :limit="1">
             <el-button size="small" type="primary">添加txt文件</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传txt文件</div>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -157,10 +165,15 @@
       <el-input class="input-new-tag" v-if="inputVisible" v-model="inputValue" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirm"
         @blur="handleInputConfirm">
       </el-input>
-      <el-button v-else class="button-new-tag" size="small" @click="showInput">+添加标签</el-button>
+      <el-button v-else class="button-new-tag" size="small" @click="showInput">添加标签</el-button>
+      <el-form :model="tUpdateTag" size="small" :rules="rulesruleTagForm" ref="ruleTagForm">
+        <el-form-item prop="content">
+          <el-input v-model="tUpdateTag.content" auto-complete="off" style="display:none;"></el-input>  
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="tDialogTagVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onModifyTagsSubmit">确 定</el-button>
+        <el-button type="primary" @click="onModifyTagsSubmit('ruleTagForm')">确 定</el-button>
       </span>
     </el-dialog>
   </div>
@@ -186,8 +199,11 @@
         if (f.name.substring(f.name.length - 3) !== 'txt') {
           this.$refs.upload.clearFiles()
         } else {
-          this.hasFile = true
+          this.tUpdateData.filename = f.name.substring(f.name.length - 4)
         }
+      },
+      onUploadRemove(f, fl) {
+        this.tUpdateData.filename = ''
       },
       modifyTitle(scope) {
         this.$prompt('修改标题', '提示', {
@@ -226,39 +242,29 @@
           })
         })
       },
-      onModifyTagsSubmit() {
-        let d = ''
-        if (this.dynamicTags.length > 0) {
-          this.dynamicTags.forEach(e => {
-            d = d + e + ','
-          })
-          d = d.substring(0, d.length - 1)
-          if (d.length > 45) {
-            this.$message({
-              type: 'error',
-              message: '标签总长度超过45了，请删除一些标签，谢谢！',
-              duration: 3 * 1000
+      onModifyTagsSubmit(fn) {
+        this.$refs[fn].validate((valid) => {
+          if (valid) {
+            update({
+              uuid: this.tUpdateRowUuid,
+              tags: this.tUpdateTag.content
+            }).then(r => {
+              this.tDialogTagVisible = false
+              this.$message({
+                type: 'success',
+                message: '修改成功!'
+              })
+              this.tableData.content[this.tUpdateRowIndex].tags = []
+              this.dynamicTags.forEach(e => {
+                this.tableData.content[this.tUpdateRowIndex].tags.push(e)
+              })
             })
-            return
           }
-        }
-        update({
-          uuid: this.tUpdateRowUuid,
-          tags: d
-        }).then(r => {
-          this.tDialogTagVisible = false
-          this.$message({
-            type: 'success',
-            message: '修改成功!'
-          })
-          this.tableData.content[this.tUpdateRowIndex].tags.length = 0
-          this.dynamicTags.forEach(e => {
-            this.tableData.content[this.tUpdateRowIndex].tags.push(e)
-          })
         })
       },
       handleClose(tag) {
         this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1)
+        this.reloadTagsUpdate()
       },
 
       showInput() {
@@ -275,15 +281,58 @@
         }
         this.inputVisible = false
         this.inputValue = ''
+        this.reloadTagsUpdate()
       },
       modifyTags(scope) {
         this.tDialogTagVisible = true
         this.tUpdateRowIndex = scope.$index
         this.tUpdateRowUuid = scope.row.uuid
         this.dynamicTags.length = 0
-        scope.row.tags.forEach(element => {
-          this.dynamicTags.push(element)
+        if (scope.row.tags !== null) {
+          scope.row.tags.forEach(element => {
+            this.dynamicTags.push(element)
+          })
+          this.reloadTagsUpdate()
+        }
+      },
+      handleClose1(tag) {
+        this.dynamicTags1.splice(this.dynamicTags1.indexOf(tag), 1)
+        this.reloadTags()
+      },
+
+      showInput1() {
+        this.inputVisible1 = true
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput1.$refs.input.focus()
         })
+      },
+
+      handleInputConfirm1() {
+        const inputValue = this.inputValue1
+        if (inputValue) {
+          this.dynamicTags1.push(inputValue)
+        }
+        this.inputVisible1 = false
+        this.inputValue1 = ''
+        this.reloadTags()
+      },
+      reloadTags() {
+        let d = ''
+        if (this.dynamicTags1.length > 0) {
+          this.dynamicTags1.forEach(e => {
+            d = d + e + ','
+          })
+          this.tUpdateData.tags = d.substring(0, d.length - 1)
+        }
+      },
+      reloadTagsUpdate() {
+        let d = ''
+        if (this.dynamicTags.length > 0) {
+          this.dynamicTags.forEach(e => {
+            d = d + e + ','
+          })
+          this.tUpdateTag.content = d.substring(0, d.length - 1)
+        }
       },
       modifyStatus(scope) {
         const d = Math.abs(scope.row.status - 1)
@@ -372,21 +421,18 @@
           // return false
         })
       },
-      uploadonChange(file, fileList) {
-        this.tUpdateData.title = file.name.split('.')[0]
-      },
       initQueryData() {
         this.tQueryData = {
           page: 1,
           size: 10,
-          sort: '0',
-          sortfiled: 'uuid',
+          sort: '1',
+          sortfiled: 'pubtime',
           title: '',
           preface: '',
           tags: '',
           status: null,
           totalcomparetype: 'null',
-          timepubrange: null
+          timepubrange: ['', '']
         }
       },
       initUpadateData() {
@@ -397,7 +443,8 @@
           tags: '',
           siteid: '0',
           status: '0',
-          pubtime: null
+          pubtime: null,
+          filename: ''
         }
       },
       onQuerySubmit(first) {
@@ -438,16 +485,8 @@
       onSaveSubmit() {
         this.$refs['ruleForm'].validate((valid) => {
           if (valid) {
-            if (!this.hasFile) {
-              this.$message({
-                type: 'error',
-                message: '请添加文学文件txt',
-                duration: 3 * 1000
-              })
-            } else {
-              this.tLoadingUpdateConfirm = true
-              this.$refs.upload.submit()
-            }
+            this.tLoadingUpdateConfirm = true
+            this.$refs.upload.submit()
           }
         })
       },
@@ -469,6 +508,7 @@
             message: '新增成功!'
           })
           this.$refs.upload.clearFiles()
+          this.onQuerySubmit()
         }).catch(() => {
           this.tLoadingUpdateConfirm = false
         })
@@ -481,6 +521,7 @@
         this.tDialogSaveVisible = false
         this.tLoadingUpdateConfirm = false
         this.$refs.upload.clearFiles()
+        this.dynamicTags1 = []
       },
       onUpdateSubmit() {
         this.tLoadingUpdateConfirm = true
@@ -498,7 +539,7 @@
       },
       onDelete(scope) {
         // this.tableData.content.splice(scope.$index, 1)
-        this.$confirm('删除标题为 ' + scope.row.title + ' 的记录？此操作将永久删除该记录, 是否继续?', '提示', {
+        this.$confirm('文学标题为【' + scope.row.title + '】的记录？此操作将永久删除该记录, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
@@ -565,39 +606,41 @@
       }
     },
     data() {
+      const validateTitle = (rule, v, callback) => {
+        v = v || ''
+        if (v === '' || v.length > 32) {
+          callback(new Error('标题不能为空，且必须小于等于32位'))
+        }
+        callback()
+      }
+      const validateTags = (rule, v, callback) => {
+        v = v || ''
+        if (v === '') {
+          callback()
+        }
+        if (v.length > 45) {
+          callback(new Error('标签长度必须小于等于45位,请删除一些标签'))
+        }
+        callback()
+      }
+      const validateFileName = (rule, v, callback) => {
+        v = v || ''
+        if (v === '') {
+          callback(new Error('请添加文件'))
+        }
+        callback()
+      }
       return {
-        hasFile: false,
+        tUpdateTag: {
+          content: ''
+        },
         fd: null,
         dynamicTags: [],
         inputVisible: false,
         inputValue: '',
-        pickerOptions2: {
-          shortcuts: [{
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-              picker.$emit('pick', [start, end])
-            }
-          }]
-        },
+        dynamicTags1: [],
+        inputVisible1: false,
+        inputValue1: '',
         upload_url: 'https://www.baidu.com',
         tLoadingUpdateConfirm: false,
         tDialogSaveVisible: false,
@@ -610,14 +653,22 @@
         formLabelWidth: '120px',
         tableData: [],
         rules: {
-          title: [
-            { required: true, message: '标题不能为空', trigger: 'blur' },
-            { min: 0, max: 32, message: '标题长度必须小于等于32', trigger: 'blur' }
-          ],
-          tags: [
-            { min: 0, max: 32, message: '标题长度必须小于等于45', trigger: 'blur' }
-          ]
-  
+          title: [{
+            validator: validateTitle
+          }],
+          tags: [{
+            validator: validateTags, trigger: 'change'
+          }],
+          filename: {
+            validator: validateFileName, trigger: 'change'
+          }
+
+        },
+        rulesruleTagForm: {
+          content: [
+            {
+              validator: validateTags, trigger: 'change'
+            }]
         }
       }
     }
@@ -657,7 +708,8 @@
   .el-button--mini.is-round {
     padding: 5px 10px;
   }
-.iconsize {
+
+  .iconsize {
     font-size: 14px;
     cursor: pointer;
   }
@@ -696,4 +748,5 @@
     width: 80px;
     height: 80px;
   }
+
 </style>

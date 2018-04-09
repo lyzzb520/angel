@@ -18,14 +18,18 @@ router.beforeEach((to, from, next) => {
       if (store.getters.roles.length === 0) {
         store.dispatch('GetInfo').then(res => { // 拉取用户信息
           if (res.code !== 0) {
-            store.dispatch('FedLogOut').then(() => {
-              Message({
-                message: '验证失败, 请重新登录',
-                type: 'error',
-                duration: 3 * 1000
+            if (res.code === 20000) {
+              window.location.href = '404'
+            } else {
+              store.dispatch('FedLogOut').then(() => {
+                Message({
+                  message: '验证失败, 请重新登录',
+                  type: 'error',
+                  duration: 3 * 1000
+                })
+                next({ path: '/login' })
               })
-              next({ path: '/login' })
-            })
+            }
           }
           next()
         }).catch(() => {

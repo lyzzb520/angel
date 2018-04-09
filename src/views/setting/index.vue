@@ -5,7 +5,7 @@
     <el-collapse>
       <el-collapse-item name="1">
         <template slot="title">
-          <span class="svg-container"><svg-icon icon-class="pwd"></svg-icon></span> 密码设置123
+          <i class="el-icon-menu"></i> 修改密码
         </template>
         <el-form :inline="true" size="mini" :model="resetPwdForm" :rules="rules" ref="resetPwdForm" label-width="100px" class="demo-resetPwdForm">
           <el-form-item label="旧密码" prop="oldpwd">
@@ -23,55 +23,167 @@
           </el-form-item>
         </el-form>
       </el-collapse-item>
-      <el-collapse-item title="其他设置" name="2">
-        <el-form size="mini" :inline="true" label-position="top" :model="settingForm" :rules="rules2" ref="settingForm" label-width="100px"
+      <el-collapse-item name="2">
+        <template slot="title">
+          <i class="el-icon-menu"></i> 其他设置
+        </template>
+        <el-form size="mini" :inline="false" label-position="right" :model="settingForm" :rules="rules2" ref="settingForm" label-width="250px"
           class="demo-settingForm">
-          <el-form-item label="访问A2的key：" prop="a2_apikey">
-            <el-input v-model="settingForm.a2_apikey"></el-input>
-          </el-form-item>
-          <el-form-item label="查询全部视频记录：" prop="a2_gettask">
-            <el-input v-model="settingForm.a2_gettask"></el-input>
-          </el-form-item>
-          <el-form-item label="查询指定视频记录：" prop="a2_gettaskbyid">
-            <el-input v-model="settingForm.a2_gettaskbyid"></el-input>
-          </el-form-item>
-          <el-form-item label="删除全部记录和文件：" prop="a2_remove">
-            <el-input v-model="settingForm.a2_remove"></el-input>
-          </el-form-item>
-          <el-form-item label="删除指定记录和文件：" prop="a2_removebyid">
-            <el-input v-model="settingForm.a2_removebyid"></el-input>
-          </el-form-item>
-          <el-form-item label="视频播放的域名，来自云转码播放域名，同d4：" prop="a2_play_domain">
+          <el-form-item  prop="a2_play_domain">
+            <template slot="label">
+              A2视频播放地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2视频播放地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a2_play_domain"></el-input>
           </el-form-item>
-          <el-form-item label="截图访问的域名，来自云转码图片域名，同d4：" prop="a2_pic_domain">
-            <el-input v-model="settingForm.a2_pic_domain"></el-input>
-          </el-form-item>
-          <el-form-item label="默认播放列表文件名index.m3u8：" prop="a2_m3u8_name">
+
+          <el-form-item  prop="a2_m3u8_name">
+            <template slot="label">
+              A2视频M3U8文件名
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2视频M3U8文件名">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a2_m3u8_name"></el-input>
           </el-form-item>
-          <el-form-item label="默认截图文件名1.jpg：" prop="a2_pic_name">
+
+          <el-form-item prop="a2_pic_domain">
+            <template slot="label">
+              A2视频截图访问地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2视频截图访问地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.a2_pic_domain"></el-input>
+          </el-form-item>
+
+          <el-form-item prop="a2_pic_name">
+            <template slot="label">
+              A2视频截图文件名
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2视频截图文件名">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a2_pic_name"></el-input>
           </el-form-item>
-          <el-form-item label="提供给A2访问的key：" prop="apikey4a2">
+
+          <el-form-item prop="a2_gettask">
+            <template slot="label">
+              A2获取全部视频记录的地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2获取全部视频记录的地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.a2_gettask"></el-input>
+          </el-form-item>
+
+          <el-form-item prop="a2_gettaskbyid">
+            <template slot="label">
+              A2获取单个视频记录的地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2获取单个视频记录的地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.a2_gettaskbyid"></el-input>
+          </el-form-item>
+
+          <el-form-item prop="a2_remove">
+            <template slot="label">
+              A2删除全部视频记录的地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2删除全部视频记录的地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.a2_remove"></el-input>
+          </el-form-item>
+
+          <el-form-item prop="a2_removebyid">
+            <template slot="label">
+              A2删除单个视频记录的地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2删除单个视频记录的地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.a2_removebyid"></el-input>
+          </el-form-item>
+
+          <hr>
+
+          <el-form-item prop="a2_apikey">
+            <template slot="label">
+              A1请求A2的接口密钥
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A1请求A2的接口密钥">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.a2_apikey"></el-input>
+          </el-form-item>
+          <el-form-item prop="apikey4a2">
+            <template slot="label">
+              A2请求A1的接口密钥
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A2请求A1的接口密钥">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.apikey4a2"></el-input>
           </el-form-item>
-          <el-form-item label="提供给C端访问的key：" prop="apikey4c">
+          <el-form-item prop="apikey4c">
+            <template slot="label">
+              C端请求A1的接口密钥
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="C端请求A1的接口密钥">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.apikey4c"></el-input>
           </el-form-item>
-          <el-form-item label="文学资源txt访问的域名，同d2：" prop="a1_book_domain">
+
+          <hr>
+
+          <el-form-item prop="a1_book_domain">
+            <template slot="label">
+              A1文学访问地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A1文学访问地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a1_book_domain"></el-input>
           </el-form-item>
-          <el-form-item label="图库资源访问的域名，同d2：" prop="a1_pic_domain">
+          <el-form-item prop="a1_pic_domain">
+            <template slot="label">
+              A1图库访问地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A1图库访问地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a1_pic_domain"></el-input>
           </el-form-item>
-          <el-form-item label="限制A1后台访问域名，同d1：" prop="a1_admin_domain">
+          <el-form-item prop="a1_admin_domain">
+            <template slot="label">
+              A1后台访问地址
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A1后台访问地址">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a1_admin_domain"></el-input>
           </el-form-item>
           <el-form-item label="A1后台入口映射：" prop="a1_path_manager">
+            <template slot="label">
+              A1后台访问路径
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A1后台入口映射：">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a1_path_manager"></el-input>
           </el-form-item>
-          <el-form-item label="A1上传的静态资源映射：" prop="a1_path_upload">
+          <el-form-item prop="a1_path_upload">
+            <template slot="label">
+              A1文学与图库资源访问路径
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="A1文学与图库资源访问路径">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
             <el-input v-model="settingForm.a1_path_upload"></el-input>
           </el-form-item>
           <el-form-item label="操作">
@@ -100,6 +212,40 @@
     //   ])
     // }
     data() {
+      const pwdValidator = (rule, value, callback) => {
+        value = value || ''
+        if (value.length < 6 || value.length > 12) {
+          callback(new Error('只能是6~12位字符'))
+        } else {
+          callback()
+        }
+      }
+      const validator_reg_str = (rule, value, callback) => {
+        value = value || ''
+        if (!/^[a-zA-Z_0-9]+$/.test(value)) {
+          callback(new Error('只能包含大小写字母和_'))
+        } else {
+          callback()
+        }
+      }
+  
+      const validator_reg_link = (rule, value, callback) => {
+        value = value || ''
+        if (!/^(http|https):\/\/[\s\S]*[^/]$/.test(value)) {
+          callback(new Error('必须是有效的链接'))
+        } else {
+          callback()
+        }
+      }
+      const validator_reg_domain = (rule, value, callback) => {
+        value = value || ''
+        if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(value)) {
+          callback(new Error('必须是有效的域名'))
+        } else {
+          callback()
+        }
+      }
+  
       return {
         resetPwdForm: {
           oldpwd: '',
@@ -126,125 +272,69 @@
         },
         rules2: {
           a2_apikey: {
-            required: true,
-            message: '请输入 a2_apikey',
-            trigger: 'blur'
+            validator: validator_reg_str
           },
           a2_gettask: {
-            required: true,
-            message: '请输入 a2_gettask',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a2_gettaskbyid: {
-            required: true,
-            message: '请输入 a2_gettaskbyid',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a2_remove: {
-            required: true,
-            message: '请输入 a2_remove',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a2_removebyid: {
-            required: true,
-            message: '请输入 a2_removebyid',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a2_play_domain: {
-            required: true,
-            message: '请输入 a2_play_domain',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a2_pic_domain: {
-            required: true,
-            message: '请输入 a2_pic_domain',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a2_m3u8_name: {
-            required: true,
-            message: '请输入 a2_m3u8_name',
-            trigger: 'blur'
+            required: true, message: '不能为空'
           },
           a2_pic_name: {
-            required: true,
-            message: '请输入 apia2_pic_namekey',
-            trigger: 'blur'
+            required: true, message: '不能为空'
           },
           apikey4a2: {
-            required: true,
-            message: '请输入 apikey4a2',
-            trigger: 'blur'
+            validator: validator_reg_str
           },
           apikey4c: {
-            required: true,
-            message: '请输入 apikey4c',
-            trigger: 'blur'
+            validator: validator_reg_str
           },
           a1_book_domain: {
-            required: true,
-            message: '请输入 a1_book_domain',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a1_pic_domain: {
-            required: true,
-            message: '请输入 a1_pic_domain',
-            trigger: 'blur'
+            validator: validator_reg_link
           },
           a1_admin_domain: {
-            required: true,
-            message: '请输入 a1_admin_domain',
-            trigger: 'blur'
+            validator: validator_reg_domain
           },
-          a1_manager_path: {
-            required: true,
-            message: '请输入 a1_manager_path',
-            trigger: 'blur'
+          a1_path_manager: {
+            validator: validator_reg_str
           },
-          a1_upload_path: {
-            required: true,
-            message: '请输入 a1_upload_path',
-            trigger: 'blur'
+          a1_path_upload: {
+            validator: validator_reg_str
           }
         },
         rules: {
-          oldpwd: [{
-            required: true,
-            message: '请输入旧密码',
-            trigger: 'blur'
+          oldpwd: {
+            validator: pwdValidator
           },
-          {
-            min: 5,
-            max: 10,
-            message: '密码长度在 5 到 10 个字符',
-            trigger: 'blur'
-          }
-          ],
-          newpwd: [{
-            required: true,
-            message: '请输入新密码',
-            trigger: 'blur'
+          newpwd: {
+            validator: pwdValidator
           },
-          {
-            min: 5,
-            max: 10,
-            message: '密码长度在 5 到 10 个字符',
-            trigger: 'blur'
+          renewpwd: {
+            validator: pwdValidator
           }
-          ],
-          renewpwd: [{
-            required: true,
-            message: '请再次输入新密码',
-            trigger: 'blur'
-          },
-          {
-            min: 5,
-            max: 10,
-            message: '密码长度在 5 到 10 个字符',
-            trigger: 'blur'
-          }
-          ]
         }
       }
+    },
+    created() {
+      this.querySettingForm()
     },
     methods: {
       submitForm(formName) {
@@ -312,5 +402,9 @@
 
   .el-form--label-top .el-form-item__label {
     padding: 0px;
+  }
+  .icon-zhb {
+    color: #b7b2b2;
+    cursor: pointer;
   }
 </style>

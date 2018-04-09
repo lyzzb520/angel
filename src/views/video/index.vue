@@ -26,7 +26,7 @@
             <el-option label="小于" value="1"></el-option>
             <el-option label="全部" value="null"></el-option>
           </el-select>
-          <el-input-number v-model="tQueryData.timecomparevalue" size="mini" :min="1" :max="50" style="width:100px;"></el-input-number>
+          <el-input-number v-model="tQueryData.timecomparevalue" size="mini" :min="1" style="width:100px;"></el-input-number>
           <el-select class="query-stauts" size="mini" v-model="tQueryData.timecomparelength">
             <el-option label="小时" value="0"></el-option>
             <el-option label="分钟" value="1"></el-option>
@@ -47,12 +47,22 @@
           </el-select>
         </el-form-item>
         <el-form-item label="发布时间">
-          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange" type="datetimerange" :picker-options="pickerOptions2"
-            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" align="right">
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini"
+            v-model="tQueryData.timepubrange[0]"
+            type="datetime"
+            placeholder="选择开始日期时间">
+          </el-date-picker> - 
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini"
+            v-model="tQueryData.timepubrange[1]"
+            type="datetime"
+            placeholder="选择结束日期时间">
           </el-date-picker>
+          <!-- <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange" type="datetimerange" :picker-options="pickerOptions2"
+            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" align="right">
+          </el-date-picker> -->
         </el-form-item>
         <el-form-item>
-          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button size="mini" plain @click="initQueryData()" icon="el-icon-refresh">清空</el-button>
@@ -134,10 +144,15 @@
       <el-input class="input-new-tag" v-if="inputVisible" v-model="inputValue" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirm"
         @blur="handleInputConfirm">
       </el-input>
-      <el-button v-else class="button-new-tag" size="small" @click="showInput">+添加标签</el-button>
+      <el-button v-else class="button-new-tag" size="small" @click="showInput">添加标签</el-button>
+      <el-form :model="tUpdateTag" size="small" :rules="rulesruleTagForm" ref="ruleTagForm">
+        <el-form-item prop="content">
+          <el-input v-model="tUpdateTag.content" auto-complete="off" style="display:none;"></el-input>  
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="tDialogTagVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onModifyTagsSubmit">确 定</el-button>
+        <el-button type="primary" @click="onModifyTagsSubmit('ruleTagForm')">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -198,37 +213,29 @@
           })
         })
       },
-      onModifyTagsSubmit() {
-        let d = ''
-        this.dynamicTags.forEach(e => {
-          d = d + e + ','
-        })
-        d = d.substring(0, d.length - 1)
-        if (d.length > 45) {
-          this.$message({
-            type: 'error',
-            message: '标签总长度超过45了，请删除一些标签，谢谢！',
-            duration: 3 * 1000
-          })
-          return
-        }
-        update({
-          uuid: this.tUpdateRowUuid,
-          tags: d
-        }).then(r => {
-          this.tDialogTagVisible = false
-          this.$message({
-            type: 'success',
-            message: '修改成功!'
-          })
-          this.tableData.content[this.tUpdateRowIndex].tags.length = 0
-          this.dynamicTags.forEach(e => {
-            this.tableData.content[this.tUpdateRowIndex].tags.push(e)
-          })
+      onModifyTagsSubmit(fn) {
+        this.$refs[fn].validate((valid) => {
+          if (valid) {
+            update({
+              uuid: this.tUpdateRowUuid,
+              tags: this.tUpdateTag.content
+            }).then(r => {
+              this.tDialogTagVisible = false
+              this.$message({
+                type: 'success',
+                message: '修改成功!'
+              })
+              this.tableData.content[this.tUpdateRowIndex].tags = []
+              this.dynamicTags.forEach(e => {
+                this.tableData.content[this.tUpdateRowIndex].tags.push(e)
+              })
+            })
+          }
         })
       },
       handleClose(tag) {
         this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1)
+        this.reloadTagsUpdate()
       },
 
       showInput() {
@@ -245,15 +252,19 @@
         }
         this.inputVisible = false
         this.inputValue = ''
+        this.reloadTagsUpdate()
       },
       modifyTags(scope) {
         this.tDialogTagVisible = true
         this.tUpdateRowIndex = scope.$index
         this.tUpdateRowUuid = scope.row.uuid
         this.dynamicTags.length = 0
-        scope.row.tags.forEach(element => {
-          this.dynamicTags.push(element)
-        })
+        if (scope.row.tags !== null) {
+          scope.row.tags.forEach(element => {
+            this.dynamicTags.push(element)
+          })
+          this.reloadTagsUpdate()
+        }
       },
       modifyStatus(scope) {
         const d = Math.abs(scope.row.status - 1)
@@ -330,6 +341,15 @@
           })
         }
       },
+      reloadTagsUpdate() {
+        let d = ''
+        if (this.dynamicTags.length > 0) {
+          this.dynamicTags.forEach(e => {
+            d = d + e + ','
+          })
+          this.tUpdateTag.content = d.substring(0, d.length - 1)
+        }
+      },
       uploadCustom(data) {
         // console.log(data)
         const formData = new FormData()
@@ -349,17 +369,18 @@
         this.tQueryData = {
           page: 1,
           size: 10,
-          sort: '0',
-          sortfiled: 'uuid',
+          sort: '1',
+          sortfiled: 'pubtime',
           uuid: null,
           title: '',
           time: 1,
           tags: '',
           timecomparetype: 'null',
-          timecomparelength: '2',
+          timecomparelength: '1',
           status: 'null',
           siteid: null,
-          timepubrange: null
+          timepubrange: ['', ''],
+          timecomparevalue: 10
         }
       },
       initUpadateData() {
@@ -418,7 +439,7 @@
       },
       onDelete(scope) {
         // this.tableData.content.splice(scope.$index, 1)
-        this.$confirm('删除uuid为 ' + scope.row.uuid + ' 的记录？此操作将永久删除该记录, 是否继续?', '提示', {
+        this.$confirm('删除视频标题为【 ' + scope.row.title + '】 的记录？此操作将永久删除该记录, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
@@ -493,7 +514,20 @@
       }
     },
     data() {
+      const validateTags = (rule, v, callback) => {
+        v = v || ''
+        if (v === '') {
+          callback()
+        }
+        if (v.length > 45) {
+          callback(new Error('标签长度必须小于等于45位,请删除一些标签'))
+        }
+        callback()
+      }
       return {
+        tUpdateTag: {
+          content: ''
+        },
         dynamicTags: [],
         inputVisible: false,
         inputValue: '',
@@ -534,7 +568,13 @@
         tUpdateRowIndex: 0,
         tUpdateRowUuid: 0,
         formLabelWidth: '120px',
-        tableData: []
+        tableData: [],
+        rulesruleTagForm: {
+          content: [
+            {
+              validator: validateTags, trigger: 'change'
+            }]
+        }
       }
     }
   }

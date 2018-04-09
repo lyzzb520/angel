@@ -32,7 +32,7 @@
         <el-form-item label="标签">
           <el-input class="query-input" size="mini" v-model="tQueryData.tags" placeholder="输入标签" clearable></el-input>
         </el-form-item>
-        <el-form-item label="标签">
+        <el-form-item label="来源站点">
           <el-input class="query-input" size="mini" v-model="tQueryData.siteid" placeholder="上传来源" clearable></el-input>
         </el-form-item>
         <el-form-item label="状态">
@@ -43,12 +43,22 @@
           </el-select>
         </el-form-item>
         <el-form-item label="发布时间">
-          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange" type="datetimerange" :picker-options="pickerOptions2"
-            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" align="right">
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini"
+            v-model="tQueryData.timepubrange[0]"
+            type="datetime"
+            placeholder="选择开始日期时间">
+          </el-date-picker> - 
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini"
+            v-model="tQueryData.timepubrange[1]"
+            type="datetime"
+            placeholder="选择结束日期时间">
           </el-date-picker>
+          <!-- <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange" type="datetimerange" :picker-options="pickerOptions2"
+            range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" align="right">
+          </el-date-picker> -->
         </el-form-item>
         <el-form-item>
-          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)"></el-button>
+          <el-button size="mini" type="primary" icon="el-icon-search" @click="onQuerySubmit(true)">查询</el-button>
         </el-form-item>
         <el-form-item>
           <el-button size="mini" plain @click="initQueryData()" icon="el-icon-refresh">清空</el-button>
@@ -127,7 +137,14 @@
           <el-input v-model="tUpdateData.total" auto-complete="off"></el-input>
         </el-form-item>
         <el-form-item label="标签" :label-width="formLabelWidth" prop="tags">
-          <el-input v-model="tUpdateData.tags" auto-complete="off"></el-input>
+          <el-input v-model="tUpdateData.tags" auto-complete="off" style="display:none"></el-input> 
+          <el-tag :key="tag" v-for="tag in dynamicTags1" closable :disable-transitions="false" @close="handleClose1(tag)">
+            {{tag}}
+          </el-tag>
+          <el-input class="input-new-tag" v-if="inputVisible1" v-model="inputValue1" ref="saveTagInput1" size="small" @keyup.enter.native="handleInputConfirm1"
+            @blur="handleInputConfirm1">
+          </el-input>
+          <el-button v-else class="button-new-tag" size="small" @click="showInput1">添加标签</el-button>
         </el-form-item>
         <!-- <el-form-item label="发布来源" :label-width="formLabelWidth" prop="siteid">
           <el-input v-model="tUpdateData.siteid" auto-complete="off"></el-input>
@@ -138,11 +155,11 @@
             <el-option label="已发布" value="1"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="添加图片" :label-width="formLabelWidth" >
+        <el-form-item label="添加文件" :label-width="formLabelWidth" prop="filename">
+          <el-input v-model="tUpdateData.filename" auto-complete="off" style="display:none"></el-input>      
           <el-upload class="upload-demo" ref="upload" :auto-upload="false" action="" :http-request="startUpload" :before-upload="beforeUpload"
-            list-type="picture" :on-change="onUploadChange" :limit="1">
-            <el-button size="small" type="primary">添加图片压缩包</el-button>
-            <div slot="tip" class="el-upload__tip">只能上传zip压缩包文件</div>
+            list-type="picture" :on-change="onUploadChange" :on-remove="onUploadRemove" :limit="1">
+            <el-button size="small" type="primary">添加zip文件</el-button>
           </el-upload>
         </el-form-item>
       </el-form>
@@ -160,10 +177,15 @@
       <el-input class="input-new-tag" v-if="inputVisible" v-model="inputValue" ref="saveTagInput" size="small" @keyup.enter.native="handleInputConfirm"
         @blur="handleInputConfirm">
       </el-input>
-      <el-button v-else class="button-new-tag" size="small" @click="showInput">+添加标签</el-button>
+      <el-button v-else class="button-new-tag" size="small" @click="showInput">添加标签</el-button>
+      <el-form :model="tUpdateTag" size="small" :rules="rulesruleTagForm" ref="ruleTagForm">
+        <el-form-item prop="content">
+          <el-input v-model="tUpdateTag.content" auto-complete="off" style="display:none;"></el-input>  
+        </el-form-item>
+      </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="tDialogTagVisible = false">取 消</el-button>
-        <el-button type="primary" @click="onModifyTagsSubmit">确 定</el-button>
+        <el-button type="primary" @click="onModifyTagsSubmit('ruleTagForm')">确 定</el-button>
       </span>
     </el-dialog>
 
@@ -193,10 +215,14 @@
         return '未发布'
       },
       onUploadChange(f, fl) {
-        this.hasFile = true
         if (f.name.substring(f.name.length - 3) !== 'zip') {
           this.$refs.upload.clearFiles()
+        } else {
+          this.tUpdateData.filename = f.name.substring(f.name.length - 4)
         }
+      },
+      onUploadRemove(f, fl) {
+        this.tUpdateData.filename = ''
       },
       modifyTitle(scope) {
         this.$prompt('修改标题', '提示', {
@@ -235,39 +261,29 @@
           })
         })
       },
-      onModifyTagsSubmit() {
-        let d = ''
-        if (this.dynamicTags.length > 0) {
-          this.dynamicTags.forEach(e => {
-            d = d + e + ','
-          })
-          d = d.substring(0, d.length - 1)
-          if (d.length > 45) {
-            this.$message({
-              type: 'error',
-              message: '标签总长度超过45了，请删除一些标签，谢谢！',
-              duration: 3 * 1000
+      onModifyTagsSubmit(fn) {
+        this.$refs[fn].validate((valid) => {
+          if (valid) {
+            update({
+              uuid: this.tUpdateRowUuid,
+              tags: this.tUpdateTag.content
+            }).then(r => {
+              this.tDialogTagVisible = false
+              this.$message({
+                type: 'success',
+                message: '修改成功!'
+              })
+              this.tableData.content[this.tUpdateRowIndex].tags = []
+              this.dynamicTags.forEach(e => {
+                this.tableData.content[this.tUpdateRowIndex].tags.push(e)
+              })
             })
-            return
           }
-        }
-        update({
-          uuid: this.tUpdateRowUuid,
-          tags: d
-        }).then(r => {
-          this.tDialogTagVisible = false
-          this.$message({
-            type: 'success',
-            message: '修改成功!'
-          })
-          this.tableData.content[this.tUpdateRowIndex].tags.length = 0
-          this.dynamicTags.forEach(e => {
-            this.tableData.content[this.tUpdateRowIndex].tags.push(e)
-          })
         })
       },
       handleClose(tag) {
         this.dynamicTags.splice(this.dynamicTags.indexOf(tag), 1)
+        this.reloadTagsUpdate()
       },
 
       showInput() {
@@ -284,15 +300,58 @@
         }
         this.inputVisible = false
         this.inputValue = ''
+        this.reloadTagsUpdate()
       },
       modifyTags(scope) {
         this.tDialogTagVisible = true
         this.tUpdateRowIndex = scope.$index
         this.tUpdateRowUuid = scope.row.uuid
         this.dynamicTags.length = 0
-        scope.row.tags.forEach(element => {
-          this.dynamicTags.push(element)
+        if (scope.row.tags !== null) {
+          scope.row.tags.forEach(element => {
+            this.dynamicTags.push(element)
+          })
+          this.reloadTagsUpdate()
+        }
+      },
+      handleClose1(tag) {
+        this.dynamicTags1.splice(this.dynamicTags1.indexOf(tag), 1)
+        this.reloadTags()
+      },
+
+      showInput1() {
+        this.inputVisible1 = true
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput1.$refs.input.focus()
         })
+      },
+
+      handleInputConfirm1() {
+        const inputValue = this.inputValue1
+        if (inputValue) {
+          this.dynamicTags1.push(inputValue)
+        }
+        this.inputVisible1 = false
+        this.inputValue1 = ''
+        this.reloadTags()
+      },
+      reloadTags() {
+        let d = ''
+        if (this.dynamicTags1.length > 0) {
+          this.dynamicTags1.forEach(e => {
+            d = d + e + ','
+          })
+          this.tUpdateData.tags = d.substring(0, d.length - 1)
+        }
+      },
+      reloadTagsUpdate() {
+        let d = ''
+        if (this.dynamicTags.length > 0) {
+          this.dynamicTags.forEach(e => {
+            d = d + e + ','
+          })
+          this.tUpdateTag.content = d.substring(0, d.length - 1)
+        }
       },
       modifyStatus(scope) {
         const d = Math.abs(scope.row.status - 1)
@@ -389,6 +448,7 @@
             message: '新增成功!'
           })
           this.$refs.upload.clearFiles()
+          this.onQuerySubmit()
         }).catch(() => {
           this.tLoadingUpdateConfirm = false
         })
@@ -408,14 +468,14 @@
         this.tQueryData = {
           page: 1,
           size: 10,
-          sort: '0',
-          sortfiled: 'uuid',
+          sort: '1',
+          sortfiled: 'pubtime',
           title: '',
           tags: '',
           siteid: null,
           status: 'null',
           totalcomparetype: 'null',
-          timepubrange: null
+          timepubrange: ['', '']
         }
       },
       initUpadateData() {
@@ -424,6 +484,7 @@
           title: '',
           total: '',
           tags: '',
+          filename: '',
           siteid: '0',
           status: '0',
           pubtime: null
@@ -452,16 +513,8 @@
       onSaveSubmit(formName) {
         this.$refs['ruleForm'].validate((valid) => {
           if (valid) {
-            if (!this.hasFile) {
-              this.$message({
-                type: 'error',
-                message: '请添加图片压缩包',
-                duration: 3 * 1000
-              })
-            } else {
-              this.tLoadingUpdateConfirm = true
-              this.$refs.upload.submit()
-            }
+            this.tLoadingUpdateConfirm = true
+            this.$refs.upload.submit()
           }
         })
       },
@@ -481,7 +534,7 @@
       },
       onDelete(scope) {
         // this.tableData.content.splice(scope.$index, 1)
-        this.$confirm('删除标题为 ' + scope.row.title + ' 的记录？此操作将永久删除该记录, 是否继续?', '提示', {
+        this.$confirm('删除图片标题为【' + scope.row.title + '】的记录？此操作将永久删除该记录, 是否继续?', '提示', {
           confirmButtonText: '确定',
           cancelButtonText: '取消',
           type: 'warning',
@@ -544,6 +597,16 @@
       }
     },
     data() {
+      const validateTags = (rule, v, callback) => {
+        v = v || ''
+        if (v === '') {
+          callback()
+        }
+        if (v.length > 45) {
+          callback(new Error('标签长度必须小于等于45位,请删除一些标签'))
+        }
+        callback()
+      }
       const validateTotal = (rule, value, callback) => {
         if (!/^[1-9]+[0-9]*]*$/.test(value)) {
           callback(new Error('图片数量必须为整型'))
@@ -553,13 +616,25 @@
         }
         callback()
       }
+      const validateFileName = (rule, v, callback) => {
+        v = v || ''
+        if (v === '') {
+          callback(new Error('请添加文件'))
+        }
+        callback()
+      }
       return {
-        hasFile: false,
+        tUpdateTag: {
+          content: ''
+        },
         fd: null,
         previewImgUrls: [],
         dynamicTags: [],
+        dynamicTags1: [],
         inputVisible: false,
         inputValue: '',
+        inputVisible1: false,
+        inputValue1: '',
         pickerOptions2: {
           shortcuts: [{
             text: '最近一周',
@@ -608,9 +683,18 @@
             { validator: validateTotal, trigger: 'blur' }
           ],
           tags: [
-            { min: 0, max: 32, message: '标题长度必须小于等于45', trigger: 'blur' }
-          ]
+            { validator: validateTags, trigger: 'change' }
+          ],
+          filename: {
+            validator: validateFileName, trigger: 'change'
+          }
   
+        },
+        rulesruleTagForm: {
+          content: [
+            {
+              validator: validateTags, trigger: 'change'
+            }]
         }
       }
     }
