@@ -3,20 +3,7 @@
     <fieldset>
       <legend>操作</legend>
 
-      <el-form :inline="true" :model="tQueryData" class="demo-form-inline">
-        <!-- <el-form-item>
-          <el-button size="mini" type="primary" icon="el-icon-plus" @click="onSaveDialogShow()">新增</el-button>
-        </el-form-item> -->
-        <!-- <el-form-item label="排序">
-          <el-select class="query-sort" size="mini" v-model="tQueryData.sortfiled">
-            <el-option label="uuid" value="uuid"></el-option>
-            <el-option label="pt" value="pubtime"></el-option>
-          </el-select>
-          <el-select class="query-sort" size="mini" v-model="tQueryData.sort">
-            <el-option label="升" value="0"></el-option>
-            <el-option label="降" value="1"></el-option>
-          </el-select>
-        </el-form-item> -->
+      <el-form :inline="true" :model="tQueryData" class="demo-form-inline" :rules="rulesQuery" ref="rulesQueryForm">
         <el-form-item label="标题">
           <el-input class="query-input" size="mini" v-model="tQueryData.title" placeholder="输入标题" clearable></el-input>
         </el-form-item>
@@ -36,7 +23,7 @@
         <el-form-item label="标签">
           <el-input class="query-input" size="mini" v-model="tQueryData.tags" placeholder="输入标签" clearable></el-input>
         </el-form-item>
-        <el-form-item label="来源站点">
+        <el-form-item label="来源站点" prop="siteid">
           <el-input class="query-input" size="mini" v-model="tQueryData.siteid" placeholder="输入站点" clearable></el-input>
         </el-form-item>
         <el-form-item label="状态">
@@ -47,15 +34,9 @@
           </el-select>
         </el-form-item>
         <el-form-item label="发布时间">
-          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini"
-            v-model="tQueryData.timepubrange[0]"
-            type="datetime"
-            placeholder="选择开始日期时间">
-          </el-date-picker> - 
-          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini"
-            v-model="tQueryData.timepubrange[1]"
-            type="datetime"
-            placeholder="选择结束日期时间">
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange[0]" type="datetime" placeholder="选择开始日期时间">
+          </el-date-picker> -
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange[1]" type="datetime" placeholder="选择结束日期时间">
           </el-date-picker>
           <!-- <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" size="mini" v-model="tQueryData.timepubrange" type="datetimerange" :picker-options="pickerOptions2"
             range-separator="至" start-placeholder="开始日期" end-placeholder="结束日期" align="right">
@@ -109,7 +90,7 @@
         <template slot-scope="scope">
           <!-- <el-tag :type="scope.row.status === 0?'info':'success'">{{ scope.row.status === 0?'未启用' : '已启用' }}</el-tag> -->
           <div @click="modifyStatus(scope)">
-            <el-switch v-model=" scope.row.status == '1' " active-color="#13ce66" >
+            <el-switch v-model=" scope.row.status == '1' " active-color="#13ce66">
             </el-switch>
           </div>
         </template>
@@ -135,7 +116,7 @@
         :total="tableData.totalElements">
       </el-pagination>
     </div>
-  
+
     <!-- 修改标签窗口 -->
     <el-dialog title="修改标签" width="30%" :visible.sync="tDialogTagVisible">
       <el-tag :key="tag" v-for="tag in dynamicTags" closable :disable-transitions="false" @close="handleClose(tag)">
@@ -147,7 +128,7 @@
       <el-button v-else class="button-new-tag" size="small" @click="showInput">添加标签</el-button>
       <el-form :model="tUpdateTag" size="small" :rules="rulesruleTagForm" ref="ruleTagForm">
         <el-form-item prop="content">
-          <el-input v-model="tUpdateTag.content" auto-complete="off" style="display:none;"></el-input>  
+          <el-input v-model="tUpdateTag.content" auto-complete="off" style="display:none;"></el-input>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -155,7 +136,13 @@
         <el-button type="primary" @click="onModifyTagsSubmit('ruleTagForm')">确 定</el-button>
       </span>
     </el-dialog>
-
+    <el-dialog title="提示" :visible.sync="preDialogVisiable" width="50%">
+      <iframe :src="videoSrc" frameborder="0" width="100%" height="400px"></iframe>
+      <!-- <div style="width:100%;height:300px;background:green;"></div> -->
+      <span slot="footer" class="dialog-footer">
+        <el-button type="primary" @click="preDialogVisiable = false">确 定</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -168,7 +155,20 @@
   } from '@/api/video'
   import timeago from 'timeago.js'
   export default {
+    computed: {
+      videoSrc() {
+        if (this.preScope) {
+          return this.preSrc + this.preScope.row.videourl
+        } else {
+          return this.preSrc
+        }
+      }
+    },
     methods: {
+      onView(scope) {
+        this.preScope = scope
+        this.preDialogVisiable = true
+      },
       tg(time) {
         if (time !== null) {
           return timeago(null, 'zh_CN').format(time)
@@ -397,6 +397,13 @@
         if (first) {
           this.tQueryData.page = 1
         }
+        this.$refs['rulesQueryForm'].validate((valid) => {
+          if (valid) {
+            this.loadData()
+          }
+        })
+      },
+      loadData() {
         this.tableLoading = true
         query(this.tQueryData).then(response => {
           this.tableData = response.data == null ? [] : response.data
@@ -405,7 +412,6 @@
           this.tableLoading = false
         })
       },
-
       onSaveDialogShow() {
         this.initUpadateData()
         this.tDialogSaveVisible = true
@@ -483,7 +489,7 @@
         this.onQuerySubmit()
       },
       fetchData() {
-        this.onQuerySubmit()
+        this.onQuerySubmit(true)
       },
       timeStamp(second_time) {
         let h = 0
@@ -504,14 +510,9 @@
         return [zero(h), zero(i), zero(s)].join(':')
       }
     },
-    created() {
+    mounted() {
       this.initQueryData()
       this.fetchData()
-    },
-    filter: {
-      formatStutus(val) {
-        console.log(val)
-      }
     },
     data() {
       const validateTags = (rule, v, callback) => {
@@ -524,56 +525,50 @@
         }
         callback()
       }
+      const siteidValidator = (rule, value, callback) => {
+        value = value || ''
+        if (value === '') {
+          callback()
+        }
+        if (!/^\d+$/.test(value)) {
+          callback(new Error('只能输入整数'))
+        }
+        callback()
+      }
       return {
+        preSrc: 'ckplayer/index.html?_=',
+        preScope: null,
+        preDialogVisiable: false,
         tUpdateTag: {
           content: ''
         },
         dynamicTags: [],
         inputVisible: false,
         inputValue: '',
-        pickerOptions2: {
-          shortcuts: [{
-            text: '最近一周',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 7)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近一个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 30)
-              picker.$emit('pick', [start, end])
-            }
-          }, {
-            text: '最近三个月',
-            onClick(picker) {
-              const end = new Date()
-              const start = new Date()
-              start.setTime(start.getTime() - 3600 * 1000 * 24 * 90)
-              picker.$emit('pick', [start, end])
-            }
-          }]
-        },
         tDialogTagVisible: false,
         tLoadingUpdateConfirm: false,
         tDialogSaveVisible: false,
         tDialogUpdateVisible: false,
         tableLoading: false,
-        tQueryData: {},
+        tQueryData: {
+          timepubrange: ['', '']
+        },
         tUpdateData: {},
         tUpdateRowIndex: 0,
         tUpdateRowUuid: 0,
         formLabelWidth: '120px',
         tableData: [],
         rulesruleTagForm: {
-          content: [
-            {
-              validator: validateTags, trigger: 'change'
-            }]
+          content: [{
+            validator: validateTags,
+            trigger: 'change'
+          }]
+        },
+        rulesQuery: {
+          siteid: {
+            validator: siteidValidator,
+            trigger: 'change'
+          }
         }
       }
     }

@@ -7,26 +7,16 @@
         <el-form-item>
           <el-button size="mini" type="primary" icon="el-icon-plus" @click="onSaveDialogShow()">新增</el-button>
         </el-form-item>
-        <!-- <el-form-item label="排序">
-          <el-select class="query-sort" size="mini" v-model="tQueryData.sortfiled">
-            <el-option label="uuid" value="uuid"></el-option>
-            <el-option label="pt" value="pubtime"></el-option>
-          </el-select>
-          <el-select class="query-sort" size="mini" v-model="tQueryData.sort">
-            <el-option label="升" value="0"></el-option>
-            <el-option label="降" value="1"></el-option>
-          </el-select>
-        </el-form-item> -->
         <el-form-item label="标题">
           <el-input class="query-input" size="mini" v-model="tQueryData.title" placeholder="输入标题" clearable></el-input>
         </el-form-item>
         <el-form-item label="文学长度">
-          <el-select class="query-stauts" size="mini" v-model="tQueryData.totalcomparetype">
+          <el-select class="query-stauts" size="mini" v-model="tQueryData.lengthcomparetype">
             <el-option label="大于" value="0"></el-option>
             <el-option label="小于" value="1"></el-option>
             <el-option label="全部" value=null></el-option>
           </el-select>
-          <el-input-number v-model="tQueryData.timecomparevalue" size="mini" :min="1" :max="50" style="width:100px;"></el-input-number>
+          <el-input-number v-model="tQueryData.length" size="mini" :min="1" style="width:100px;"></el-input-number>
 
         </el-form-item>
         <el-form-item label="前言">
@@ -39,7 +29,7 @@
           <el-select class="query-stauts" size="mini" v-model="tQueryData.status">
             <el-option label="未发布" value="0"></el-option>
             <el-option label="已发布" value="1"></el-option>
-            <el-option label="全部" value="2"></el-option>
+            <el-option label="全部" value="null"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="发布时间">
@@ -72,11 +62,13 @@
       </el-table-column>
       <el-table-column label="前言" align="center">
         <template slot-scope="scope">
-          <!-- {{scope.row.preface}} -->
-          <span class="svg-container" @click="displayPreface(scope.row.preface)">
+          {{scope.row.preface}}
+          <!-- <span class="svg-container" @click="displayPreface(scope.row.preface)">
             <svg-icon class="iconsize" icon-class="view"></svg-icon>
-          </span>
+          </span> -->
         </template>
+      </el-table-column>
+      <el-table-column label="长度" prop="length" align="center">
       </el-table-column>
       <el-table-column label="标签" align="center">
         <template slot-scope="scope">
@@ -430,9 +422,11 @@
           title: '',
           preface: '',
           tags: '',
-          status: null,
-          totalcomparetype: 'null',
-          timepubrange: ['', '']
+          length: 2000,
+          status: 'null',
+          lengthcomparetype: 'null',
+          timepubrange: ['', ''],
+          timecomparevalue: 2000
         }
       },
       initUpadateData() {

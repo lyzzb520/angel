@@ -7,16 +7,6 @@
         <el-form-item>
           <el-button size="mini" type="primary" icon="el-icon-plus" @click="onSaveDialogShow()">新增</el-button>
         </el-form-item>
-        <!-- <el-form-item label="排序">
-          <el-select class="query-sort" size="mini" v-model="tQueryData.sortfiled">
-            <el-option label="uuid" value="uuid"></el-option>
-            <el-option label="pt" value="pubtime"></el-option>
-          </el-select>
-          <el-select class="query-sort" size="mini" v-model="tQueryData.sort">
-            <el-option label="升" value="0"></el-option>
-            <el-option label="降" value="1"></el-option>
-          </el-select>
-        </el-form-item> -->
         <el-form-item label="标题">
           <el-input class="query-input" size="mini" v-model="tQueryData.title" placeholder="输入标题" clearable></el-input>
         </el-form-item>
@@ -72,7 +62,7 @@
         <template slot-scope="scope">
           <!-- <img :src="scope.row.picurl" class="thum"> -->
           <div style="display: inline-block" :key="index" v-for="(thum, index ) in scope.row.thumurl">
-            <img :src="thum" class="thum">
+            <img :src="thum" class="thum" style="margin-left:5px;">
           </div>
         </template>
       </el-table-column>
@@ -475,7 +465,8 @@
           siteid: null,
           status: 'null',
           totalcomparetype: 'null',
-          timepubrange: ['', '']
+          timepubrange: ['', ''],
+          timecomparevalue: 5
         }
       },
       initUpadateData() {
