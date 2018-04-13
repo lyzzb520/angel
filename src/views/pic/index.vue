@@ -97,7 +97,7 @@
       </el-table-column>
       <el-table-column label="发布时间" align="center">
         <template slot-scope="scope">
-          {{tg(scope.row.pubtime)}}
+          {{scope.row.pubtime}}<br>{{tg(scope.row.pubtime)}}
         </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作">

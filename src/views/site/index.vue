@@ -35,9 +35,9 @@
       </el-form>
     </fieldset>
     <el-table :data="tableData.content" v-loading="tableLoading" border style="width: 100%" size="mini">
-      <el-table-column fixed prop="id" label="B站ID" width="150">
+      <el-table-column fixed prop="id" label="B站ID" width="150" align="center">
       </el-table-column>
-      <el-table-column label="站名">
+      <el-table-column label="站名" align="center">
         <template slot-scope="scope">
           {{scope.row.name}}
           <span class="svg-container" @click="modifyName(scope)">
@@ -45,7 +45,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="主域名">
+      <el-table-column label="主域名" align="center">
         <template slot-scope="scope">
           {{scope.row.domain}}
           <span class="svg-container" @click="modifyDomain(scope)">
@@ -53,7 +53,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="服务器IP">
+      <el-table-column label="服务器IP" align="center">
         <template slot-scope="scope">
           {{scope.row.ip}}
           <span class="svg-container" @click="modifyIp(scope)">
@@ -61,7 +61,7 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column label="访问秘钥">
+      <el-table-column label="访问秘钥" align="center">
         <template slot-scope="scope">
           {{scope.row.apikey}}
           <span class="svg-container" @click="modifyApikey(scope)">
@@ -69,9 +69,12 @@
           </span>
         </template>
       </el-table-column>
-      <el-table-column prop="createtime" label="创建时间">
+      <el-table-column prop="createtime" label="创建时间" align="center">
+        <template slot-scope="scope">
+          {{scope.row.createtime}}<br>{{tg(scope.row.createtime)}}
+        </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作">
+      <el-table-column fixed="right" label="操作" align="center">
         <template slot-scope="scope">
           <el-button-group>
             <!-- <el-button @click="onUpdateDialogShow(scope)" type="primary" size="mini" icon="el-icon-edit-outline"></el-button> -->
@@ -122,8 +125,15 @@
     update,
     add
   } from '@/api/site'
+  import timeago from 'timeago.js'
   export default {
     methods: {
+      tg(time) {
+        if (time !== null) {
+          return timeago(null, 'zh_CN').format(time)
+        }
+        return '未发布'
+      },
       resetSaveFields() {
         const saveForm = 'ruleForm'
         if (this.$refs[saveForm]) {

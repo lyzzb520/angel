@@ -97,10 +97,10 @@
       </el-table-column>
       <el-table-column prop="pubtime" label="发布时间" align="center">
         <template slot-scope="scope">
-          {{tg(scope.row.pubtime)}}
+          {{scope.row.pubtime}}<br>{{tg(scope.row.pubtime)}}
         </template>
       </el-table-column>
-      <el-table-column fixed="right" label="操作">
+      <el-table-column fixed="right" label="操作" align="center">
         <template slot-scope="scope">
           <el-button-group>
             <el-button @click="onView(scope)" type="primary" icon="el-icon-view" size="mini"></el-button>
