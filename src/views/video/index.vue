@@ -136,7 +136,7 @@
         <el-button type="primary" @click="onModifyTagsSubmit('ruleTagForm')">确 定</el-button>
       </span>
     </el-dialog>
-    <el-dialog title="提示" :visible.sync="preDialogVisiable" width="50%">
+    <el-dialog :title="preScope==null?'':preScope.row.title" :visible.sync="preDialogVisiable" width="50%">
       <iframe :src="videoSrc" frameborder="0" width="100%" height="400px"></iframe>
       <!-- <div style="width:100%;height:300px;background:green;"></div> -->
       <span slot="footer" class="dialog-footer">
@@ -510,8 +510,10 @@
         return [zero(h), zero(i), zero(s)].join(':')
       }
     },
-    mounted() {
+    created() {
       this.initQueryData()
+    },
+    mounted() {
       this.fetchData()
     },
     data() {

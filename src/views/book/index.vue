@@ -111,7 +111,7 @@
     </div>
 
     <!-- 添加 -->
-    <el-dialog title="新增" width="30%" :visible.sync="tDialogSaveVisible">
+    <el-dialog title="新增" width="30%" :visible.sync="tDialogSaveVisible" :before-close="onBeforeClose">
       <el-form :model="tUpdateData" size="small" :rules="rules" ref="ruleForm">
         <el-form-item label="标题" :label-width="formLabelWidth" prop="title" >
           <el-input v-model="tUpdateData.title" auto-complete="off" clearable></el-input>
@@ -508,10 +508,16 @@
         })
       },
       onBeforeClose(done) {
+        if (this.$refs['ruleForm']) {
+          this.$refs['ruleForm'].resetFields()
+        }
         this.$refs.upload.clearFiles()
         done()
       },
       onCloseUploadDialog() {
+        if (this.$refs['ruleForm']) {
+          this.$refs['ruleForm'].resetFields()
+        }
         this.tDialogSaveVisible = false
         this.tLoadingUpdateConfirm = false
         this.$refs.upload.clearFiles()

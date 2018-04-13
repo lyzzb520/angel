@@ -38,6 +38,18 @@ export const constantRouterMap = [
     ]
   },
   {
+    path: '/notice',
+    component: Layout,
+    children: [
+      {
+        path: 'index',
+        name: 'Notice',
+        component: () => import('@/views/notice/index'),
+        meta: { title: '公告管理', icon: 'notice' }
+      }
+    ]
+  },
+  {
     path: '/',
     component: Layout,
     redirect: '/setting/index',

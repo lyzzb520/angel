@@ -445,14 +445,18 @@
       },
       onBeforeClose(done) {
         this.$refs.upload.clearFiles()
-        this.hasFile = false
+        if (this.$refs['ruleForm']) {
+          this.$refs['ruleForm'].resetFields()
+        }
         done()
       },
       onCloseUploadDialog() {
+        if (this.$refs['ruleForm']) {
+          this.$refs['ruleForm'].resetFields()
+        }
         this.tDialogSaveVisible = false
         this.tLoadingUpdateConfirm = false
         this.$refs.upload.clearFiles()
-        this.hasFile = false
       },
       initQueryData() {
         this.tQueryData = {

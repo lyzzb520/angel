@@ -222,7 +222,7 @@
       }
       const validator_reg_str = (rule, value, callback) => {
         value = value || ''
-        if (!/^[a-zA-Z_0-9]+$/.test(value)) {
+        if (!/^[a-zA-Z_\-0-9]+$/.test(value)) {
           callback(new Error('只能包含大小写字母和_'))
         } else {
           callback()

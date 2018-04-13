@@ -39,22 +39,34 @@
       </el-table-column>
       <el-table-column label="站名">
         <template slot-scope="scope">
-          {{scope.row.name}} <span class="svg-container" @click="modifyName(scope)"><svg-icon class="iconsize" icon-class="edit"></svg-icon></span>
+          {{scope.row.name}}
+          <span class="svg-container" @click="modifyName(scope)">
+            <svg-icon class="iconsize" icon-class="edit"></svg-icon>
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="主域名">
         <template slot-scope="scope">
-          {{scope.row.domain}} <span class="svg-container" @click="modifyDomain(scope)"><svg-icon class="iconsize" icon-class="edit"></svg-icon></span>
+          {{scope.row.domain}}
+          <span class="svg-container" @click="modifyDomain(scope)">
+            <svg-icon class="iconsize" icon-class="edit"></svg-icon>
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="服务器IP">
         <template slot-scope="scope">
-          {{scope.row.ip}} <span class="svg-container" @click="modifyIp(scope)"><svg-icon class="iconsize" icon-class="edit"></svg-icon></span>
+          {{scope.row.ip}}
+          <span class="svg-container" @click="modifyIp(scope)">
+            <svg-icon class="iconsize" icon-class="edit"></svg-icon>
+          </span>
         </template>
       </el-table-column>
       <el-table-column label="访问秘钥">
         <template slot-scope="scope">
-          {{scope.row.apikey}} <span class="svg-container"  @click="modifyApikey(scope)"><svg-icon class="iconsize" icon-class="edit"></svg-icon></span>
+          {{scope.row.apikey}}
+          <span class="svg-container" @click="modifyApikey(scope)">
+            <svg-icon class="iconsize" icon-class="edit"></svg-icon>
+          </span>
         </template>
       </el-table-column>
       <el-table-column prop="createtime" label="创建时间">
@@ -77,8 +89,8 @@
     </div>
 
     <!-- 添加 -->
-    <el-dialog title="新增" width="30%" :visible.sync="tDialogSaveVisible">
-      <el-form :model="tUpdateData" size="small" :rules="rules" ref="ruleForm">
+    <el-dialog title="新增" width="30%" :visible.sync="tDialogSaveVisible" :before-close="onSaveDialogClose">
+      <el-form :model="tUpdateData" size="small" :rules="rules" ref="ruleForm" >
         <el-form-item label="站点ID" :label-width="formLabelWidth" prop="id">
           <el-input v-model="tUpdateData.id" auto-complete="off"></el-input>
         </el-form-item>
@@ -96,7 +108,7 @@
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
-        <el-button @click="tDialogSaveVisible = false">取 消</el-button>
+        <el-button @click="onCloseUploadDialog('ruleForm')">取 消</el-button>
         <el-button type="primary" @click="onSaveSubmit('ruleForm')" :loading="tLoadingUpdateConfirm">确 定</el-button>
       </div>
     </el-dialog>
@@ -104,352 +116,396 @@
 </template>
 
 <script>
-import {
-  query,
-  del,
-  update,
-  add
-} from '@/api/site'
-export default {
-  methods: {
-    modifyName(scope) {
-      this.$prompt('修改站名', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: scope.row.name,
-        lockScroll: false,
-        inputPlaceholder: '请输入站名',
-        inputType: 'text',
-        inputValidator: function(v) {
-          v = v || ''
-          if (v.trim() === '') {
-            return '站名不能为空！'
-          }
-          if (v.length > 32) {
-            return '站名长度不能查过32个字符'
-          }
-          return true
+  import {
+    query,
+    del,
+    update,
+    add
+  } from '@/api/site'
+  export default {
+    methods: {
+      resetSaveFields() {
+        const saveForm = 'ruleForm'
+        if (this.$refs[saveForm]) {
+          this.$refs[saveForm].resetFields()
         }
-      }).then(({ value }) => {
-        update({ id: scope.row.id, name: value }).then(response => {
-          scope.row.name = value
-          this.$message({
-            type: 'success',
-            message: '修改成功！'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消修改站名'
-        })
-      })
-    },
-    modifyDomain(scope) {
-      this.$prompt('修改域名', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: scope.row.domain,
-        lockScroll: false,
-        inputPlaceholder: '请输入域名',
-        inputType: 'text',
-        inputValidator: function(v) {
-          v = v || ''
-          if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(v)) {
-            return '必须是有效的域名'
+      },
+      onCloseUploadDialog(fn) {
+        this.tDialogSaveVisible = false
+        this.resetSaveFields()
+      },
+      onSaveDialogClose(done) {
+        this.resetSaveFields()
+        done()
+      },
+      modifyName(scope) {
+        this.$prompt('修改站名', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputValue: scope.row.name,
+          lockScroll: false,
+          inputPlaceholder: '请输入站名',
+          inputType: 'text',
+          inputValidator: function(v) {
+            v = v || ''
+            if (v.trim() === '') {
+              return '站名不能为空！'
+            }
+            if (v.length > 32) {
+              return '站名长度不能查过32个字符'
+            }
+            return true
           }
-          if (v.length > 45) {
-            return '域名长度必须小于等于45'
-          }
-          return true
-        }
-      }).then(({ value }) => {
-        update({ id: scope.row.id, domain: value }).then(response => {
-          scope.row.domain = value
-          this.$message({
-            type: 'success',
-            message: '修改成功！'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消修改域名'
-        })
-      })
-    },
-    modifyIp(scope) {
-      this.$prompt('修改IP', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: scope.row.ip,
-        lockScroll: false,
-        inputPlaceholder: '请输入合法IP',
-        inputPattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
-        inputErrorMessage: '请输入合法IP'
-      }).then(({ value }) => {
-        update({ id: scope.row.id, ip: value }).then(response => {
-          scope.row.ip = value
-          this.$message({
-            type: 'success',
-            message: '修改成功！'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消修改IP'
-        })
-      })
-    },
-    modifyApikey(scope) {
-      this.$prompt('修改apikey', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputValue: scope.row.apikey,
-        lockScroll: false,
-        inputPlaceholder: '请输入apikey',
-        inputType: 'text',
-        inputValidator: function(v) {
-          v = v || ''
-          if (!/^[a-zA-Z_0-9]+$/.test(v)) {
-            return 'apikey只能保护数字、大小写字母和下划线'
-          }
-          if (v.length > 32) {
-            return '域名长度必须小于等于32'
-          }
-          return true
-        }
-      }).then(({ value }) => {
-        update({ id: scope.row.id, apikey: value }).then(response => {
-          scope.row.apikey = value
-          this.$message({
-            type: 'success',
-            message: '修改成功！'
-          })
-        })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消修改apikey'
-        })
-      })
-    },
-    initQueryData() {
-      this.tQueryData = {
-        sort: '1',
-        sortfiled: 'createtime',
-        name: '',
-        domain: '',
-        ip: '',
-        page: 1,
-        size: 10
-      }
-    },
-    initUpadateData() {
-      this.tUpdateData = {
-        id: null,
-        name: null,
-        domain: null,
-        ip: null,
-        apikey: null,
-        createtime: null
-      }
-    },
-    timest() {
-      return Date.parse(new Date()).toString().substr(0, 10)
-    },
-    onQuerySubmit(first) {
-      if (first) {
-        this.tQueryData.page = 1
-      }
-      this.tableLoading = true
-      query(this.tQueryData).then(response => {
-        this.tableData = response.data
-        this.tableLoading = false
-      }).catch(() => {
-        this.tableLoading = false
-      })
-    },
-    onSaveDialogShow() {
-      this.initUpadateData()
-      this.tDialogSaveVisible = true
-    },
-    onSaveSubmit() {
-      this.$refs['ruleForm'].validate((valid) => {
-        if (valid) {
-          this.tLoadingUpdateConfirm = true
-          add(this.tUpdateData).then(response => {
-            this.tLoadingUpdateConfirm = false
-            this.tDialogSaveVisible = false
+        }).then(({
+          value
+        }) => {
+          update({
+            id: scope.row.id,
+            name: value
+          }).then(response => {
+            scope.row.name = value
             this.$message({
               type: 'success',
-              message: '添加成功!'
+              message: '修改成功！'
             })
-          }).catch(() => {
-            this.tLoadingUpdateConfirm = false
           })
-        }
-      })
-    },
-    onDelete(scope) {
-      // this.tableData.content.splice(scope.$index, 1)
-      this.$confirm('删除站名为【' + scope.row.name + '】的记录？此操作将永久删除该记录, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning',
-        beforeClose: (action, instance, done) => {
-          if (action === 'confirm') {
-            instance.confirmButtonLoading = true
-            instance.confirmButtonText = '执行中...'
-            del({
-              id: scope.row.id
-            }).then(response => {
-              done()
-              instance.confirmButtonLoading = false
-              this.tableData.content.splice(scope.$index, 1)
-              this.tableData.totalElements -= 1
-            }).catch(() => {
-              instance.confirmButtonLoading = false
-            })
-          } else {
-            done()
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消修改站名'
+          })
+        })
+      },
+      modifyDomain(scope) {
+        this.$prompt('修改域名', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputValue: scope.row.domain,
+          lockScroll: false,
+          inputPlaceholder: '请输入域名',
+          inputType: 'text',
+          inputValidator: function(v) {
+            v = v || ''
+            if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(v)) {
+              return '必须是有效的域名'
+            }
+            if (v.length > 45) {
+              return '域名长度必须小于等于45'
+            }
+            return true
           }
+        }).then(({
+          value
+        }) => {
+          update({
+            id: scope.row.id,
+            domain: value
+          }).then(response => {
+            scope.row.domain = value
+            this.$message({
+              type: 'success',
+              message: '修改成功！'
+            })
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消修改域名'
+          })
+        })
+      },
+      modifyIp(scope) {
+        this.$prompt('修改IP', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputValue: scope.row.ip,
+          lockScroll: false,
+          inputPlaceholder: '请输入合法IP',
+          inputPattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
+          inputErrorMessage: '请输入合法IP'
+        }).then(({
+          value
+        }) => {
+          update({
+            id: scope.row.id,
+            ip: value
+          }).then(response => {
+            scope.row.ip = value
+            this.$message({
+              type: 'success',
+              message: '修改成功！'
+            })
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消修改IP'
+          })
+        })
+      },
+      modifyApikey(scope) {
+        this.$prompt('修改apikey', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          inputValue: scope.row.apikey,
+          lockScroll: false,
+          inputPlaceholder: '请输入apikey',
+          inputType: 'text',
+          inputValidator: function(v) {
+            v = v || ''
+            if (!/^[a-zA-Z_\-0-9]+$/.test(v)) {
+              return 'apikey只能保护数字、大小写字母和下划线'
+            }
+            if (v.length > 32) {
+              return '域名长度必须小于等于32'
+            }
+            return true
+          }
+        }).then(({
+          value
+        }) => {
+          update({
+            id: scope.row.id,
+            apikey: value
+          }).then(response => {
+            scope.row.apikey = value
+            this.$message({
+              type: 'success',
+              message: '修改成功！'
+            })
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '取消修改apikey'
+          })
+        })
+      },
+      initQueryData() {
+        this.tQueryData = {
+          sort: '1',
+          sortfiled: 'createtime',
+          name: '',
+          domain: '',
+          ip: '',
+          page: 1,
+          size: 10
         }
-      }).then(() => {
-        this.$message({
-          type: 'success',
-          message: '删除成功!'
+      },
+      initUpadateData() {
+        this.tUpdateData = {
+          id: null,
+          name: null,
+          domain: null,
+          ip: null,
+          apikey: null,
+          createtime: null
+        }
+      },
+      timest() {
+        return Date.parse(new Date()).toString().substr(0, 10)
+      },
+      onQuerySubmit(first) {
+        if (first) {
+          this.tQueryData.page = 1
+        }
+        this.tableLoading = true
+        query(this.tQueryData).then(response => {
+          this.tableData = response.data
+          this.tableLoading = false
+        }).catch(() => {
+          this.tableLoading = false
         })
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '已取消删除'
+      },
+      onSaveDialogShow() {
+        this.initUpadateData()
+        this.tDialogSaveVisible = true
+      },
+      onSaveSubmit() {
+        this.$refs['ruleForm'].validate((valid) => {
+          if (valid) {
+            this.tLoadingUpdateConfirm = true
+            add(this.tUpdateData).then(response => {
+              this.tLoadingUpdateConfirm = false
+              this.tDialogSaveVisible = false
+              this.$message({
+                type: 'success',
+                message: '添加成功!'
+              })
+            }).catch(() => {
+              this.tLoadingUpdateConfirm = false
+            })
+          }
         })
-      })
+      },
+      onDelete(scope) {
+        // this.tableData.content.splice(scope.$index, 1)
+        this.$confirm('删除站名为【' + scope.row.name + '】的记录？此操作将永久删除该记录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning',
+          beforeClose: (action, instance, done) => {
+            if (action === 'confirm') {
+              instance.confirmButtonLoading = true
+              instance.confirmButtonText = '执行中...'
+              del({
+                id: scope.row.id
+              }).then(response => {
+                done()
+                instance.confirmButtonLoading = false
+                this.tableData.content.splice(scope.$index, 1)
+                this.tableData.totalElements -= 1
+              }).catch(() => {
+                instance.confirmButtonLoading = false
+              })
+            } else {
+              done()
+            }
+          }
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          })
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          })
+        })
+      },
+      handleSizeChange(val) {
+        this.tQueryData.size = val
+        this.onQuerySubmit(true)
+      },
+      handleCurrentChange(val) {
+        this.tQueryData.page = val
+        this.onQuerySubmit()
+      },
+      fetchData() {
+        this.onQuerySubmit()
+      }
     },
-    handleSizeChange(val) {
-      this.tQueryData.size = val
-      this.onQuerySubmit(true)
+    created() {
+      this.initQueryData()
+      this.fetchData()
     },
-    handleCurrentChange(val) {
-      this.tQueryData.page = val
-      this.onQuerySubmit()
-    },
-    fetchData() {
-      this.onQuerySubmit()
-    }
-  },
-  created() {
-    this.initQueryData()
-    this.fetchData()
-  },
-  data() {
-    const validateId = (rule, value, callback) => {
-      if (!/^[1-9]+[0-9]*]*$/.test(value)) {
-        callback(new Error('站点Id必须为整数'))
+    data() {
+      const validateId = (rule, value, callback) => {
+        value = value || ''
+        if (!/^\d+$/.test(value)) {
+          callback(new Error('只能输入整数'))
+        }
+        if (value.length > 10) {
+          callback(new Error('站点Id长度必须小于等于10'))
+        }
+        callback()
       }
-      if (value.length > 10) {
-        callback(new Error('站点Id长度必须小于等于10'))
+      const validateName = (rule, v, callback) => {
+        v = v || ''
+        if (v === '' || v.length > 16) {
+          callback(new Error('站名不能为空，且必须小于16位'))
+        }
+        callback()
       }
-      callback()
-    }
-    const validateName = (rule, v, callback) => {
-      v = v || ''
-      if (v === '' || v.length > 16) {
-        callback(new Error('站名不能为空，且必须小于16位'))
+      const validateKey = (rule, v, callback) => {
+        v = v || ''
+        if (!/^[a-zA-Z_\-0-9]+$/.test(v)) {
+          callback(new Error('秘钥只能包含数字大小写字母和_'))
+        }
+        if (v.length > 32) {
+          callback(new Error('秘钥长度必须小于等于32位'))
+        }
+        callback()
       }
-      callback()
-    }
-    const validateKey = (rule, v, callback) => {
-      v = v || ''
-      if (!/^[a-zA-Z_0-9]+$/.test(v)) {
-        callback(new Error('秘钥只能包含数字大小写字母和_'))
+      const validateDomain = (rule, value, callback) => {
+        value = value || ''
+        if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(value)) {
+          callback(new Error('域名格式错误！'))
+        }
+        if (value.length > 45) {
+          callback(new Error('域名长度必须小于等于45'))
+        }
+        callback()
       }
-      if (v.length > 32) {
-        callback(new Error('秘钥长度必须小于等于32位'))
+      const validateIp = (rule, value, callback) => {
+        value = value || ''
+        if (!/^((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))$/.test(
+          value)) {
+          callback(new Error('IP格式错误！'))
+        }
+        if (value.length > 45) {
+          callback(new Error('IP长度必须小于等于15'))
+        }
+        callback()
       }
-      callback()
-    }
-    const validateDomain = (rule, value, callback) => {
-      value = value || ''
-      if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(value)) {
-        callback(new Error('域名格式错误！'))
-      }
-      if (value.length > 45) {
-        callback(new Error('域名长度必须小于等于45'))
-      }
-      callback()
-    }
-    const validateIp = (rule, value, callback) => {
-      if (!/^((?:(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d)))\.){3}(?:25[0-5]|2[0-4]\d|((1\d{2})|([1-9]?\d))))$/.test(value)) {
-        callback(new Error('IP格式错误！'))
-      }
-      if (value.length > 45) {
-        callback(new Error('IP长度必须小于等于15'))
-      }
-      callback()
-    }
-    return {
-      tLoadingUpdateConfirm: false,
-      tDialogSaveVisible: false,
-      tDialogUpdateVisible: false,
-      tableLoading: false,
-      tQueryData: {},
-      tUpdateData: {},
-      tUpdateRowIndex: 0,
-      formLabelWidth: '120px',
-      tableData: [],
-      rules: {
-        id: [
-          { validator: validateId, trigger: 'blur' }
-        ],
-        name: [
-          { validator: validateName, trigger: 'blur' }
-        ],
-        domain: [
-          { validator: validateDomain, trigger: 'blur' }
-        ],
-        ip: [
-          { validator: validateIp, trigger: 'blur' }
-        ],
-        apikey: [
-          { validator: validateKey, trigger: 'blur' }
-        ]
+      return {
+        tLoadingUpdateConfirm: false,
+        tDialogSaveVisible: false,
+        tDialogUpdateVisible: false,
+        tableLoading: false,
+        tQueryData: {},
+        tUpdateData: {},
+        tUpdateRowIndex: 0,
+        formLabelWidth: '120px',
+        tableData: [],
+        rules: {
+          id: [{
+            validator: validateId,
+            trigger: 'blur'
+          }],
+          name: [{
+            validator: validateName,
+            trigger: 'blur'
+          }],
+          domain: [{
+            validator: validateDomain,
+            trigger: 'blur'
+          }],
+          ip: [{
+            validator: validateIp,
+            trigger: 'blur'
+          }],
+          apikey: [{
+            validator: validateKey,
+            trigger: 'blur'
+          }]
 
+        }
       }
     }
   }
-}
 
 </script>
 <style scoped>
-.p {
-  padding: 10px;
-}
+  .p {
+    padding: 10px;
+  }
 
-fieldset {
-  border: 1px solid #ebeef5;
-  margin-bottom: 10px;
-  display: block;
-  font-size: 12px;
-  padding: 0.1em 1.1em 0.525em;
-}
+  fieldset {
+    border: 1px solid #ebeef5;
+    margin-bottom: 10px;
+    display: block;
+    font-size: 12px;
+    padding: 0.1em 1.1em 0.525em;
+  }
 
-.query-sort {
-  width: 60px;
-}
+  .query-sort {
+    width: 60px;
+  }
 
-.demo-form-inline .el-form-item {
-  margin-bottom: 0px;
-}
+  .demo-form-inline .el-form-item {
+    margin-bottom: 0px;
+  }
 
-.el-button--mini,
-.el-button--mini.is-round {
-  padding: 5px 10px;
-}
-.iconsize {
-  font-size: 14px;
-  cursor: pointer;
-}
+  .el-button--mini,
+  .el-button--mini.is-round {
+    padding: 5px 10px;
+  }
+
+  .iconsize {
+    font-size: 14px;
+    cursor: pointer;
+  }
+
 </style>
