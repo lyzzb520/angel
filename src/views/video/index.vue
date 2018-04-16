@@ -4,6 +4,9 @@
       <legend>操作</legend>
 
       <el-form :inline="true" :model="tQueryData" class="demo-form-inline" :rules="rulesQuery" ref="rulesQueryForm">
+        <el-form-item>
+          <a class="el-button el-button--primary el-button--mini" href="upload/index.html" target="_blank"><i class="el-icon-plus"></i> 新增</a>
+        </el-form-item>
         <el-form-item label="标题">
           <el-input class="query-input" size="mini" v-model="tQueryData.title" placeholder="输入标题" clearable></el-input>
         </el-form-item>

@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="Author" content="">
+    <meta name="Keywords" content="">
+    <meta name="Description" content="">
+    <title>上传视频</title>
+    <script src="uploadAssets/jquery-1.11.2.min.js"></script>
+    <script language="javascript">
+        var ServerUrl = "http://localhost:2000/uploads/";
+        $(document).ready(function() {
+            //$('[data-toggle="tooltip"]').tooltip()
+            var hostname = window.location.hostname
+            var port = window.location.port || '80';
+            ServerUrl = "http://localhost:2000/uploads";
+        })
+    </script>
+    <link rel="stylesheet" type="text/css" href="uploadAssets/upload.css" />
+    <link rel="stylesheet" type="text/css" href="uploadAssets/jquery.tagsinput.css" />
+    <link rel="stylesheet" type="text/css" href="uploadAssets/pure.css" />
+    <script type="text/javascript" src="uploadAssets/webuploader.js"></script>
+    <script type="text/javascript" src="uploadAssets/md5.js"></script>
+    <script type="text/javascript" src="uploadAssets/up.js"></script>
+    <script type="text/javascript" src="uploadAssets/jquery.tagsinput.js"></script>
+    <script type="text/javascript" src="uploadAssets/layer.js"></script>
+	<style>
+		#tags_tag{
+			min-width:150px;
+		}
+		body{
+			padding:20px;
+		}
+		.pure-form fieldset{
+			padding: .35em 0 0 0;
+		}
+	</style>
+</head>
+
+<body>
+    <div class="uploadmain">
+        <div class="shangchuan_biaodan" id="chose0">
+            <div id="chosevideo">+ 添加视频 (点此添加 或 拖放视频到虚线框内) </div>
+            <div id="divFileProgressContainer"></div>
+        </div>
+        <form class="pure-form pure-form-stacked">
+            <fieldset>
+                <div style="height:15px;width:100%"></div>
+                <label for="email">视频标题 <span style="color:red">(*必填)</span></label>
+                <input id="videoTitle" type="text" placeholder="请输入标题" style="width:100%">
+				<div style="height:10px;width:100%"></div>
+                <label for="password">视频标签 <span style="color:red">(*必填)</label>
+                <input name="tags" id="tags" placeholder="请输入标签" />
+				<div id="startUpload" class="webuploader-pick1" style="cursor:pointer;float:right;"> 开始上传 </div>
+            </fieldset>
+        </form>
+		
+    </div>
+</body>
+
+</html>
