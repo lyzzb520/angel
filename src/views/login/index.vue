@@ -32,9 +32,10 @@
 
 <script>
 // import { isvalidUsername } from '@/utils/validate'
-
+import { getInfo } from '@/api/login'
 export default {
   name: 'login',
+
   data() {
     const validateUsername = (rule, value, callback) => {
       /*
@@ -71,6 +72,9 @@ export default {
       loading: false,
       pwdType: 'password'
     }
+  },
+  created() {
+    getInfo()
   },
   methods: {
     showPwd() {

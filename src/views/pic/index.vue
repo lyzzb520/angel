@@ -3,7 +3,7 @@
     <fieldset>
       <legend>操作</legend>
 
-      <el-form :inline="true" :model="tQueryData" class="demo-form-inline">
+      <el-form :inline="true" :model="tQueryData" class="demo-form-inline" :rules="queryRules">
         <el-form-item>
           <el-button size="mini" type="primary" icon="el-icon-plus" @click="onSaveDialogShow()">新增</el-button>
         </el-form-item>
@@ -16,13 +16,13 @@
             <el-option label="小于" value="1"></el-option>
             <el-option label="全部" value=null></el-option>
           </el-select>
-          <el-input-number v-model="tQueryData.timecomparevalue" size="mini" :min="1" :max="50" style="width:100px;"></el-input-number>
+          <el-input-number v-model="tQueryData.total" size="mini" :min="1" :max="50" style="width:100px;"></el-input-number>
 
         </el-form-item>
         <el-form-item label="标签">
           <el-input class="query-input" size="mini" v-model="tQueryData.tags" placeholder="输入标签" clearable></el-input>
         </el-form-item>
-        <el-form-item label="来源站点">
+        <el-form-item label="来源站点" prop="siteid">
           <el-input class="query-input" size="mini" v-model="tQueryData.siteid" placeholder="上传来源" clearable></el-input>
         </el-form-item>
         <el-form-item label="状态">
@@ -98,6 +98,9 @@
       <el-table-column label="发布时间" align="center">
         <template slot-scope="scope">
           {{scope.row.pubtime}}<br>{{tg(scope.row.pubtime)}}
+          <span v-if="scope.row.status == '1'" class="svg-container" @click="modifyPubtime(scope)">
+            <svg-icon class="iconsize" icon-class="edit"></svg-icon>
+          </span>
         </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作">
@@ -185,6 +188,17 @@
         <img :src="pic" style="width:100%;">
       </div>
     </el-dialog>
+
+    <el-dialog title="请选择会发布时间" :visible.sync="dialogVisiblePubtime" width="35%">
+        <div class="block">
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" v-model="pubTime" type="datetime" placeholder="选择日期时间">
+          </el-date-picker>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisiblePubtime = false">取 消</el-button>
+          <el-button type="primary" :loading="updatePubtimeLoading" @click="updatePubtime">确 定</el-button>
+        </span>
+      </el-dialog>
   </div>
 </template>
 
@@ -198,6 +212,28 @@
   import timeago from 'timeago.js'
   export default {
     methods: {
+      updatePubtime() {
+        this.updatePubtimeLoading = true
+        update({
+          uuid: this.pubTimeScope.row.uuid,
+          pubtime: this.pubTime
+        }).then(response => {
+          this.updatePubtimeLoading = false
+          this.pubTimeScope.row.pubtime = this.pubTime
+          this.dialogVisiblePubtime = false
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          })
+        }).catch(() => {
+          this.updatePubtimeLoading = false
+        })
+      },
+      modifyPubtime(scope) {
+        this.pubTimeScope = scope
+        this.pubTime = scope.row.pubtime
+        this.dialogVisiblePubtime = true
+      },
       tg(time) {
         if (time !== null) {
           return timeago(null, 'zh_CN').format(time)
@@ -470,7 +506,7 @@
           status: 'null',
           totalcomparetype: 'null',
           timepubrange: ['', ''],
-          timecomparevalue: 5
+          total: 5
         }
       },
       initUpadateData() {
@@ -602,6 +638,13 @@
         }
         callback()
       }
+      const validateSiteid = (rule, value, callback) => {
+        value = value || ''
+        if (!/^\d+$/.test(value)) {
+          callback(new Error('只能输入整数'))
+        }
+        callback()
+      }
       const validateTotal = (rule, value, callback) => {
         if (!/^[1-9]+[0-9]*]*$/.test(value)) {
           callback(new Error('图片数量必须为整型'))
@@ -619,6 +662,10 @@
         callback()
       }
       return {
+        pubTimeScope: null,
+        pubTime: null,
+        updatePubtimeLoading: false,
+        dialogVisiblePubtime: false,
         tUpdateTag: {
           content: ''
         },
@@ -690,6 +737,11 @@
             {
               validator: validateTags, trigger: 'change'
             }]
+        },
+        queryRules: {
+          siteid: {
+            validator: validateSiteid
+          }
         }
       }
     }

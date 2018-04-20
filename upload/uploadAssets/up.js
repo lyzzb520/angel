@@ -4,6 +4,7 @@ if (typeof window.console != 'object') {
     };
 }
 //#################################################
+var index = 0;
 var BASE_URL = "";
 var chunkSize = 10 * 1024 * 1024; //分块大小
 var userInfo = {
@@ -231,9 +232,12 @@ jQuery(function() {
             return $.extend(true, {}, userInfo);
         }
     });
+	var globalid = 0;
     // 当有文件添加进来的时候
     uploader.on('fileQueued', function(file) {
-		console.log($('#videoTitle').val(file.name));
+		var fn = file.name.substring(0, file.name.lastIndexOf("."))
+		console.log($('#videoTitle').val(fn));
+		globalid = file.id;
         var file_size_M = roundNumber(((file.size / 1024) / 1024), 1);
         var html = "";
         html += "<div id=\"" + file.id + "\" data-size=\"" + file.size + "\" data-time=\"" + new Date().getTime() + "\">";
@@ -286,7 +290,10 @@ jQuery(function() {
         console.log("Error！" + file.id);
         if (state != 'stoped' && state != 'finished') {
             //jError("上传错误，可能是网络原因，请稍后重试",{HorizontalPosition : 'center',VerticalPosition:'center'});
-            alert(file.name + " 上传错误，可能是网络原因，请稍后重试");
+			layer.close(index);
+			layer.alert('上传错误，可能是网络原因，请稍后重试"！', {icon:2},function(){
+				window.location.reload();
+			})
         }
     });
     //文件上传成功
@@ -301,6 +308,10 @@ jQuery(function() {
         $li.find('.time_left').html(used_time_str);
         $li.find('.percent_str').html("上传完成！");
         $li.find('.cancle').hide();
+		layer.close(index);
+		layer.alert('上传成功！视频上传后需要经过一系列处理，发布后才会出现在视频资源列表里，请勿重复上传！', {icon:1,btn:['继续上传']}, function(){
+			window.location.reload()
+		})
     });
     uploader.on('uploadComplete', function(file) {
         console.log("Complete！" + file.id);
@@ -308,6 +319,7 @@ jQuery(function() {
     uploader.on('all', function(type) {
         console.log(type);
         if (type === 'startUpload') {
+			index = layer.msg('正在上传中，请稍等');
             state = 'started';
             console.log("开始上传了~");
         } else if (type === 'stopUpload') {
@@ -315,9 +327,7 @@ jQuery(function() {
             console.log("开始暂停了~");
         } else if (type === 'uploadFinished') {
             state = 'finished';
-            layer.alert('上传成功！', {icon:1,btn:['继续上传']}, function(){
-				window.location.reload()
-			})
+            
         }
     });
 	$('#tags').tagsInput();
@@ -330,31 +340,41 @@ jQuery(function() {
 			return;
 		}
         var tags = $('#tags').val();
-		if(jQuery.trim($('#videoTitle').val())===''){
-			var i = layer.alert('标题不能为空',{icon:2},function(){
+		var ttt = jQuery.trim($('#videoTitle').val());
+		if(ttt===''){
+			var i = layer.alert('标题不能为空，请输入标题！',{icon:2},function(){
 				layer.close(i);
 				$('#videoTitle').val('');
 				$('#videoTitle').focus();
 			});
 			return;
 		}
+		if(ttt.length > 32){
+			var i = layer.alert('标题太长了！',{icon:2},function(){
+				layer.close(i);
+				$('#videoTitle').val('');
+				$('#videoTitle').focus();
+			});
+			return;
+		}
+		/*
 		if(tags==='' || tags.split(',')===''){
-			var i = layer.alert('标签不能为空,请输入标签',{icon:2},function(){
+			var i = layer.alert('标签不能为空，请输入标签！',{icon:2},function(){
 				layer.close(i);
 				$('#tags_tag').focus();
 			});
 			return;
 		}
+		*/
 		if(tags.length > 45) {
-			var i = layer.alert('标签长度不能超过45，请删除一些标签！',{icon:2},function(){
+			var i = layer.alert('标签太长了！',{icon:2},function(){
 				layer.close(i);
 				$('#tags_tag').focus();
 			});
 			return;
 		}
-		var index = layer.load(1, {
-		  shade: [0.5,'#000'] //0.1透明度的白色背景
-		});
+		layer.close(0);
+		index = layer.msg('正在上传中，请稍等');
 		let host = 'http://127.0.0.1:8080/ddd/';
 		$.ajax({
 			url:host +'video/createUuid',
@@ -370,7 +390,8 @@ jQuery(function() {
 					uploader.upload();
 					//layer.alert(d.data);
 				}else{
-					layer.alert('系统繁忙，请稍后重试');
+					//layer.alert('系统繁忙，请稍后重试');
+					window.location.href='index.html'
 				}
 				
 			},

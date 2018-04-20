@@ -46,8 +46,8 @@ const tagsView = {
       }
     },
     DEL_ALL_VIEWS: (state) => {
-      state.visitedViews = []
-      state.cachedViews = []
+      state.visitedViews = ['Setting']
+      state.cachedViews = ['Setting']
     }
   },
   actions: {

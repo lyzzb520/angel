@@ -196,7 +196,7 @@
           inputType: 'text',
           inputValidator: function(v) {
             v = v || ''
-            if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(v)) {
+            if (!/^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/.test(v)) {
               return '必须是有效的域名'
             }
             if (v.length > 45) {
@@ -430,7 +430,7 @@
       }
       const validateDomain = (rule, value, callback) => {
         value = value || ''
-        if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(value)) {
+        if (!/^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/.test(value)) {
           callback(new Error('域名格式错误！'))
         }
         if (value.length > 45) {

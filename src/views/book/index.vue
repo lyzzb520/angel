@@ -16,7 +16,7 @@
             <el-option label="小于" value="1"></el-option>
             <el-option label="全部" value=null></el-option>
           </el-select>
-          <el-input-number v-model="tQueryData.length" size="mini" :min="1" style="width:100px;"></el-input-number>
+          <el-input-number v-model="tQueryData.length" size="mini" :min="1" style="width:130px;"></el-input-number>
 
         </el-form-item>
         <el-form-item label="前言">
@@ -92,6 +92,9 @@
       <el-table-column prop="pubtime" label="发布时间" align="center">
         <template slot-scope="scope">
           {{scope.row.pubtime}}<br>{{tg(scope.row.pubtime)}}
+          <span v-if="scope.row.status == '1'" class="svg-container" @click="modifyPubtime(scope)">
+            <svg-icon class="iconsize" icon-class="edit"></svg-icon>
+          </span>
         </template>
       </el-table-column>
       <el-table-column fixed="right" label="操作">
@@ -168,6 +171,16 @@
         <el-button type="primary" @click="onModifyTagsSubmit('ruleTagForm')">确 定</el-button>
       </span>
     </el-dialog>
+    <el-dialog title="请选择会发布时间" :visible.sync="dialogVisiblePubtime" width="35%">
+        <div class="block">
+          <el-date-picker value-format="yyyy-MM-dd HH:mm:ss" v-model="pubTime" type="datetime" placeholder="选择日期时间">
+          </el-date-picker>
+        </div>
+        <span slot="footer" class="dialog-footer">
+          <el-button @click="dialogVisiblePubtime = false">取 消</el-button>
+          <el-button type="primary" :loading="updatePubtimeLoading" @click="updatePubtime">确 定</el-button>
+        </span>
+      </el-dialog>
   </div>
 </template>
 
@@ -181,6 +194,28 @@
   import timeago from 'timeago.js'
   export default {
     methods: {
+      updatePubtime() {
+        this.updatePubtimeLoading = true
+        update({
+          uuid: this.pubTimeScope.row.uuid,
+          pubtime: this.pubTime
+        }).then(response => {
+          this.updatePubtimeLoading = false
+          this.pubTimeScope.row.pubtime = this.pubTime
+          this.dialogVisiblePubtime = false
+          this.$message({
+            type: 'success',
+            message: '操作成功!'
+          })
+        }).catch(() => {
+          this.updatePubtimeLoading = false
+        })
+      },
+      modifyPubtime(scope) {
+        this.pubTimeScope = scope
+        this.pubTime = scope.row.pubtime
+        this.dialogVisiblePubtime = true
+      },
       tg(time) {
         if (time !== null) {
           return timeago(null, 'zh_CN').format(time)
@@ -631,6 +666,10 @@
         callback()
       }
       return {
+        pubTimeScope: null,
+        pubTime: null,
+        updatePubtimeLoading: false,
+        dialogVisiblePubtime: false,
         tUpdateTag: {
           content: ''
         },

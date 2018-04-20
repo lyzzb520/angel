@@ -111,6 +111,36 @@
 
           <hr>
 
+          <el-form-item prop="pub_video">
+            <template slot="label">
+              视频发布间隔时间（小时）
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="视频发布间隔时间（小时）">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.pub_video"></el-input>
+          </el-form-item>
+          <el-form-item prop="pub_book">
+            <template slot="label">
+              文学发布间隔时间（小时）
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="文学发布间隔时间（小时）">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.pub_book"></el-input>
+          </el-form-item>
+          <el-form-item prop="pub_pic">
+            <template slot="label">
+              图库发布间隔时间（小时）
+              <el-popover ref="popover-url-online" placement="top-start" title="温馨提示" trigger="hover" content="图库发布间隔时间（小时）">
+              </el-popover>
+              <i class="el-icon-question icon-zhb" v-popover:popover-url-online></i>
+            </template>
+            <el-input v-model="settingForm.pub_pic"></el-input>
+          </el-form-item>
+
+          <hr>
+
           <el-form-item prop="a2_apikey">
             <template slot="label">
               A1请求A2的接口密钥
@@ -187,9 +217,9 @@
             <el-input v-model="settingForm.a1_path_upload"></el-input>
           </el-form-item>
           <el-form-item label="操作">
-            <el-button type="primary" @click="querySettingForm">读取</el-button>
+            <!-- <el-button type="primary" @click="querySettingForm">读取</el-button> -->
             <el-button type="primary" @click="submitSettingForm('settingForm')">修改</el-button>
-            <el-button @click="resetForm('settingForm')">清空</el-button>
+            <!-- <el-button @click="resetForm('settingForm')">清空</el-button> -->
           </el-form-item>
         </el-form>
       </el-collapse-item>
@@ -231,7 +261,7 @@
   
       const validator_reg_link = (rule, value, callback) => {
         value = value || ''
-        if (!/^(http|https):\/\/[\s\S]*[^/]$/.test(value)) {
+        if (!/^(http|https):\/\/[\s\S]*$/.test(value)) {
           callback(new Error('必须是有效的链接'))
         } else {
           callback()
@@ -239,13 +269,20 @@
       }
       const validator_reg_domain = (rule, value, callback) => {
         value = value || ''
-        if (!/^(?!http|https)(?!:\/\/)[\s\S]*[^/]$/.test(value)) {
+        if (!/^(?=^.{3,255}$)[a-zA-Z0-9][-a-zA-Z0-9]{0,62}(\.[a-zA-Z0-9][-a-zA-Z0-9]{0,62})+$/.test(value)) {
           callback(new Error('必须是有效的域名'))
         } else {
           callback()
         }
       }
-  
+      const validator_reg_int = (rule, value, callback) => {
+        value = value || ''
+        if (!/^\d+$/.test(value)) {
+          callback(new Error('只能输入整数'))
+        } else {
+          callback()
+        }
+      }
       return {
         resetPwdForm: {
           oldpwd: '',
@@ -318,6 +355,15 @@
           },
           a1_path_upload: {
             validator: validator_reg_str
+          },
+          pub_video: {
+            validator: validator_reg_int
+          },
+          pub_book: {
+            validator: validator_reg_int
+          },
+          pub_pic: {
+            validator: validator_reg_int
           }
         },
         rules: {

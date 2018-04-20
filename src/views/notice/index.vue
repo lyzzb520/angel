@@ -6,6 +6,7 @@
       <el-form :inline="true" :model="tQueryData" class="demo-form-inline" :rules="rulesQuery" ref="rulesQueryForm">
         <el-form-item>
           <el-button size="mini" type="primary" icon="el-icon-plus" @click="onSaveDialogShow()">新增</el-button>
+          <tinymce :height="10" v-model="tUpdateData.content" style="display:none;"></tinymce>
         </el-form-item>
         <el-form-item label="标题">
           <el-input class="query-input" size="mini" v-model="tQueryData.title" placeholder="输入标题" clearable></el-input>
@@ -222,7 +223,7 @@
           title: '',
           url: '',
           content: '',
-          pr: '0',
+          pr: '20',
           siteids: '0',
           status: '0',
           createtime: null
@@ -280,7 +281,7 @@
           inputPlaceholder: '请输入标题链接',
           inputValidator: function(v) {
             v = v || ''
-            if (!/^(http|https):\/\/[\s\S]*[^/]$/.test(v)) {
+            if (!/^(http|https):\/\/[\s\S]*$/.test(v)) {
               return '链接格式错误，必须http或https开头'
             }
             return true
@@ -351,8 +352,8 @@
             if (v === '0') {
               return true
             }
-            if (!/^[,]([1-9]\d+[,]?)+[,]$/.test(v)) {
-              return '格式错误！示例格式：,11,22,33, 或0'
+            if (!/^([1-9]+[,]?)+$/.test(v)) {
+              return '格式错误！示例格式：11,22,33 或0'
             }
             return true
           }
@@ -602,7 +603,7 @@
           callback()
         }
         v = v || ''
-        if (!/^(http|https):\/\/[\s\S]*[^/]$/.test(v)) {
+        if (!/^(http|https):\/\/[\s\S]*$/.test(v)) {
           callback(new Error('链接格式错误，必须http或https开头'))
         }
         callback()
@@ -612,15 +613,15 @@
         if (v === '0') {
           callback()
         }
-        if (!/^[,]([1-9]\d+[,]?)+[,]$/.test(v)) {
-          callback(new Error('格式错误！示例格式：,11,22,33, 或0'))
+        if (!/^([1-9]+[,]?)+$/.test(v)) {
+          callback(new Error('格式错误！示例格式：11,22,33 或0'))
         }
         callback()
       }
       const validatePr = (rule, v, callback) => {
         v = v || ''
         if (!/^\d+$/.test(v)) {
-          callback(new Error('只能aaaa输入整数'))
+          callback(new Error('只能输入整数'))
         }
         callback()
       }

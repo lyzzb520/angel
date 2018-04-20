@@ -16,7 +16,7 @@
             <el-option label="小于" value="1"></el-option>
             <el-option label="全部" value="null"></el-option>
           </el-select>
-          <el-input-number v-model="tQueryData.timecomparevalue" size="mini" :min="1" style="width:100px;"></el-input-number>
+          <el-input-number v-model="tQueryData.time" size="mini" :min="1" style="width:100px;"></el-input-number>
           <el-select class="query-stauts" size="mini" v-model="tQueryData.timecomparelength">
             <el-option label="小时" value="0"></el-option>
             <el-option label="分钟" value="1"></el-option>
@@ -101,7 +101,7 @@
       <el-table-column prop="pubtime" label="发布时间" align="center">
         <template slot-scope="scope">
           {{scope.row.pubtime}}<br>{{tg(scope.row.pubtime)}}
-          <span class="svg-container" @click="modifyPubtime(scope)">
+          <span v-if="scope.row.status == '1'" class="svg-container" @click="modifyPubtime(scope)">
             <svg-icon class="iconsize" icon-class="edit"></svg-icon>
           </span>
         </template>
@@ -412,14 +412,13 @@
           sortfiled: 'pubtime',
           uuid: null,
           title: '',
-          time: 1,
+          time: 10,
           tags: '',
           timecomparetype: 'null',
           timecomparelength: '1',
           status: 'null',
           siteid: null,
-          timepubrange: ['', ''],
-          timecomparevalue: 10
+          timepubrange: ['', '']
         }
       },
       initUpadateData() {
