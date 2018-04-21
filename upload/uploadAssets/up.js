@@ -352,7 +352,6 @@ jQuery(function() {
 		if(ttt.length > 32){
 			var i = layer.alert('标题太长了！',{icon:2},function(){
 				layer.close(i);
-				$('#videoTitle').val('');
 				$('#videoTitle').focus();
 			});
 			return;

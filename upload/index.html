@@ -37,7 +37,22 @@
 		}
 	</style>
 </head>
+<script>
+	$.ajax({
+		url: 'admin/info',
+		async: false,
+		success(d){
+			if(d.code !==0){
+				if(d.code===20000){
+					window.location.href="index.html#404"
+				} else {
+					window.location.href="index.html#login"
+				}
 
+			}
+		}
+	})
+</script>
 <body>
     <div class="uploadmain">
         <div class="shangchuan_biaodan" id="chose0">
