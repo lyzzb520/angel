@@ -58,8 +58,9 @@
       </el-table-column> -->
       <el-table-column label="缩略图" align="center">
         <template slot-scope="scope">
-          <img :src="scope.row.picurl" class="thum">
-          <!-- <img src="http://n.sinaimg.cn/news/transform/w150h150/20180301/EnOr-fwnpcns6146309.jpg" class="thum"> -->
+          <a :href="'ckplayer/index.html?_=' + scope.row.videourl" target="_blank">
+            <img :src="scope.row.picurl" class="thum">
+          </a>
         </template>
       </el-table-column>
       <el-table-column label="标题" align="center">
@@ -109,7 +110,7 @@
       <el-table-column fixed="right" label="操作" align="center">
         <template slot-scope="scope">
           <el-button-group>
-            <el-button @click="onView(scope)" type="primary" icon="el-icon-view" size="mini"></el-button>
+            <!-- <el-button @click="onView(scope)" type="primary" icon="el-icon-view" size="mini"></el-button> -->
             <el-button @click="onDelete(scope)" type="danger" icon="el-icon-delete" size="mini"></el-button>
           </el-button-group>
         </template>
@@ -118,7 +119,7 @@
 
     <div class="p">
       <el-pagination background @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="tQueryData.page"
-        :page-sizes="[10, 20, 30, 50, 100, 200, 300, 400]" :page-size="tQueryData.size" layout="total, sizes, prev, pager, next, jumper"
+        :page-sizes="[10, 20]" :page-size="tQueryData.size" layout="total, sizes, prev, pager, next, jumper"
         :total="tableData.totalElements">
       </el-pagination>
     </div>
